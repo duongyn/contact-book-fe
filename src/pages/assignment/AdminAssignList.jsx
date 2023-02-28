@@ -313,7 +313,7 @@ const AdminAssignList = () => {
   const stateFilterMenu = <FilterMenu handleFilter={handleStateFilter} menuList={stateList} />;
 
   return (
-    <div style={{ display: 'block', width: '1000px' }}>
+    <div style={{ display: 'block', width: '1300px' }}>
       <ConfigProvider renderEmpty={customizeEmpty ? customizeRenderEmpty : undefined}>
         <Row justify="start" align="middle">
           <h2 className="title">Assignment List</h2>

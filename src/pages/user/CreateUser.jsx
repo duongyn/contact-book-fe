@@ -110,7 +110,7 @@ const CreateUser = () => {
       <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Create New User</h1>
       <Form onSubmit={createUser} validated={false}>
         <Form.Group className="mb-3">
-          <Form.Label> First Name </Form.Label>
+          <Form.Label> Tên: </Form.Label>
           <Form.Control
             required
             name="firstName"
@@ -125,7 +125,7 @@ const CreateUser = () => {
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Last Name</Form.Label>
+          <Form.Label>Họ:</Form.Label>
           <Form.Control
             name="lastName"
             value={newUser.lastName}
@@ -139,7 +139,7 @@ const CreateUser = () => {
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Date of Birth</Form.Label>
+          <Form.Label>Sinh ngày</Form.Label>
           <Form.Control
             name="dob"
             value={newUser.dob}
@@ -158,7 +158,7 @@ const CreateUser = () => {
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Gender</Form.Label>
+          <Form.Label>Giới tính</Form.Label>
           <Form.Check className="ml-5" type="radio" id="inline-radio-1" inline>
             <Form.Check.Input
               type="radio"
@@ -167,7 +167,7 @@ const CreateUser = () => {
               value="Female"
               onChange={handleInputChange}
             />
-            <Form.Check.Label style={{ paddingTop: 0 }}>Female</Form.Check.Label>
+            <Form.Check.Label style={{ paddingTop: 0 }}>Nữ</Form.Check.Label>
           </Form.Check>
           <Form.Check className="ml-5" type="radio" id="inline-radio-2" inline>
             <Form.Check.Input
@@ -176,11 +176,11 @@ const CreateUser = () => {
               value="Male"
               onChange={handleInputChange}
             />
-            <Form.Check.Label style={{ paddingTop: 0 }}>Male</Form.Check.Label>
+            <Form.Check.Label style={{ paddingTop: 0 }}>Nam</Form.Check.Label>
           </Form.Check>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label className="mr-5">Type</Form.Label>
+          <Form.Label className="mr-5">Vai trò</Form.Label>
           <Form.Select
             size="lg"
             aria-label=""
@@ -192,9 +192,9 @@ const CreateUser = () => {
           >
             <option value=""></option>
             <option value="ADMIN">Admin</option>
-            <option value="STUDENT">Student</option>
-            <option value="TEACHER">Teacher</option>
-            <option value="MANAGER">Manager</option>
+            <option value="STUDENT">Học sinh</option>
+            <option value="TEACHER">Giáo Viên</option>
+            <option value="MANAGER">Quản lý</option>
           </Form.Select>
           <Form.Control.Feedback type="invalid">{errorType}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
@@ -205,7 +205,7 @@ const CreateUser = () => {
           variant="danger"
           type="submit"
         >
-          Save
+          Tạo
         </Button>
         <Button
           style={{ float: 'right', marginRight: '80px' }}
@@ -214,7 +214,7 @@ const CreateUser = () => {
           className="btn btn-outline-secondary"
           type="button"
         >
-          Cancel
+          Hủy bỏ
         </Button>
       </Form>
     </div>

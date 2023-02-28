@@ -1,31 +1,31 @@
 export const validateFirstName = string => {
-  if (!string) return 'Please enter First Name';
-  if (string.length > 50 || string.length < 1) return 'The name length should be 1 - 50 characters';
+  if (!string) return 'Vui lòng không để trống tên';
+  if (string.length > 50 || string.length < 1) return 'Độ dài của tên nên dưới 50 kí tự';
   if (!String(string).match('^[A-Za-z\\s]+$')) {
-    return 'Name should not contain numbers, special characters and accented characters (e.g 123^%$Ââơô)';
+    return 'Tên không được chứa các kí tự đặc biệt (VD: 123^%$Ââơô)';
   }
-  if (string.match(' ')) return 'First name should not contain white spaces';
+  if (string.match(' ')) return 'Tên không nên chứa kí tự cách';
 
   if (string.length === 1) {
     if (!string.match('^[A-Z]*$')) {
-      return 'Name should have first letter capital';
+      return 'Tên nên bắt đầu bằng một chữ cái hoa';
     } else {
       return '';
     }
   }
   if (!string.match('^[A-Z][a-z]+$')) {
-    return 'Name should contain first upper case characters & the other lower case characters (e.g. Hoang, Minh)';
+    return 'Tên nên bắt đầu bằng chữ cái hoa và những chữ cái khác viết thường (e.g. Hoang, Minh)';
   }
   return '';
 };
 
 export const validateLastName = string => {
-  if (!string) return 'Please enter Last Name';
+  if (!string) return 'Vui lòng không để trống họ tên đệm';
   if (!String(string).match('^[A-Za-z\\s]+$')) {
-    return 'Name should not contain numbers, special characters and accented characters (e.g 123^%$Ââơô)';
+    return 'Họ tên đệm không được chứa các kí tự đặc biệt (e.g 123^%$Ââơô)';
   }
-  if (string.length < 1) return 'The name length should be 1 - 50 characters';
-  if (string.length > 50) return 'The name length should be 1 - 50 characters';
+  if (string.length <= 1) return 'Độ dài của tên nên lớn hơn 1';
+  if (string.length > 50) return 'Độ dài của tên nên dưới 50 kí tự';
   const stringArray = string.trim().split(' ');
   for (let i = 0; i < stringArray.length; i++) {
     if (stringArray[i].length === 1) {
@@ -49,13 +49,10 @@ export const validateDate = dob => {
   var age = today.getFullYear() - birthDate.getFullYear();
   var m = today.getMonth() - birthDate.getMonth();
   if (!dob) {
-    return 'Please select Date of Birth';
+    return 'Vui lòng nhập ngày tháng năm sinh';
   }
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
     age--;
-  }
-  if (age < 18) {
-    return 'User is under 18. Please select a different date';
   }
   return '';
 };
@@ -82,6 +79,6 @@ export const validateJoinedDate = (joinedDate, dob) => {
 };
 
 export const validateType = type => {
-  if (!type) return 'Please select Type';
+  if (!type) return 'Vui lòng chọn một vai trò cho người dùng';
   return '';
 };

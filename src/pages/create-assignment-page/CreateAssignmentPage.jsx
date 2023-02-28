@@ -51,66 +51,65 @@ function CreateAssignmentPage() {
 
   const formik = useFormik({
     initialValues: {
-      user: '',
-      asset: '',
-      assignedDate: currentDateString,
-      note: '',
+      nameClass: '',
+      classGrade: ''
     },
     onSubmit: values => {
-      let assignment = {
-        assignTo: selectedUserRow.staffCode,
-        assignBy: user.sub,
-        assignDateString: convertStringToAssignmentDateStringFormat(values.assignedDate),
-        assetCode: selectedAssetRow.assetCode,
-        note: values.note.trim(),
-        state: 'WAITING_FOR_ACCEPTANCE',
-      };
+      
+      // let assignment = {
+      //   assignTo: selectedUserRow.staffCode,
+      //   assignBy: user.sub,
+      //   assignDateString: convertStringToAssignmentDateStringFormat(values.assignedDate),
+      //   assetCode: selectedAssetRow.assetCode,
+      //   note: values.note.trim(),
+      //   state: 'WAITING_FOR_ACCEPTANCE',
+      // };
 
-      handleSubmit(assignment);
-    },
-    validationSchema: Yup.object({
-      user: Yup.string().required('Required'),
-      asset: Yup.string().required('Required'),
-    }),
-    initialErrors: { user: 'need to be set', asset: 'need to be set' },
+      let newClass = {
+        className: values.nameClass,
+        classGrade: values.classGrade
+      }
+
+      handleSubmitClass(newClass);
+    }
   });
 
   useEffect(() => {
-    async function fetchData() {
-      let userResponse = null;
-      let assetResponse = null;
-      try {
-        userResponse = await UserService.getUsersInAdminLocation(user.sub);
-        assetResponse = await AssetService.getValidAssetsForAssignment();
-      } catch (error) {
-        if (error.response.status === 400 || error.response.status === 401) {
-          showErrorMessage('Your session has expired');
-          localStorage.removeItem('token');
-          navigate('/login');
-        }
-      }
+    // async function fetchData() {
+    //   let userResponse = null;
+    //   let assetResponse = null;
+    //   try {
+    //     userResponse = await UserService.getUsersInAdminLocation(user.sub);
+    //     assetResponse = await AssetService.getValidAssetsForAssignment();
+    //   } catch (error) {
+    //     if (error.response.status === 400 || error.response.status === 401) {
+    //       showErrorMessage('Your session has expired');
+    //       localStorage.removeItem('token');
+    //       navigate('/login');
+    //     }
+    //   }
 
-      let returnedUsers = userResponse.data.map(user => {
-        return {
-          key: user.staffCode,
-          staffCode: user.staffCode,
-          fullName: user.lastName + ' ' + user.firstName,
-          type: user.type,
-        };
-      });
+    //   let returnedUsers = userResponse.data.map(user => {
+    //     return {
+    //       key: user.staffCode,
+    //       staffCode: user.staffCode,
+    //       fullName: user.lastName + ' ' + user.firstName,
+    //       type: user.type,
+    //     };
+    //   });
 
-      let returnedAssets = assetResponse.data.map(asset => {
-        return {
-          key: asset.code,
-          assetCode: asset.code,
-          name: asset.assetName,
-          category: asset.categoryName,
-        };
-      });
-      setUserData(returnedUsers);
-      setAssetData(returnedAssets);
-    }
-    fetchData();
+    //   let returnedAssets = assetResponse.data.map(asset => {
+    //     return {
+    //       key: asset.code,
+    //       assetCode: asset.code,
+    //       name: asset.assetName,
+    //       category: asset.categoryName,
+    //     };
+    //   });
+    //   setUserData(returnedUsers);
+    //   setAssetData(returnedAssets);
+    // }
+    // fetchData();
   }, []);
 
   const handleUserIconClick = event => {
@@ -135,8 +134,8 @@ function CreateAssignmentPage() {
     setAssetModalVisible(true);
   };
   const handleAssetOk = () => {
-    formik.setFieldTouched('asset', true, true);
-    formik.setFieldValue('asset', selectedAssetRow.name, true);
+    formik.setFieldTouched('teacher', true, true);
+    formik.setFieldValue('teacher', selectedAssetRow.name, true);
     setAssetModalVisible(false);
   };
 
@@ -149,7 +148,7 @@ function CreateAssignmentPage() {
   };
 
   const handleBack = event => {
-    navigate('/assignment');
+    navigate('/class');
   };
 
   const handleClickDate = (date, dateString) => {
@@ -171,9 +170,23 @@ function CreateAssignmentPage() {
     try {
       let response = await AssignmentService.createNewAssignment(assignment);
       showSuccessMessage('Assignemnt created successfully');
-      navigate('/assignment', {
-        state: { createdAssignment: response.data, prePath: '/assignment/create' },
+      navigate('/class', {
+        state: { createdAssignment: response.data, prePath: '/class/create' },
       });
+    } catch (error) {
+      if (error.response.status === 400 || error.response.status === 401) {
+        showErrorMessage('Your session has expired');
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
+    }
+  };
+
+  const handleSubmitClass = async newClass => {
+    try {
+      let response = await AssignmentService.createNewAssignment(newClass);
+      showSuccessMessage('Class created successfully');
+      navigate('/class');
     } catch (error) {
       if (error.response.status === 400 || error.response.status === 401) {
         showErrorMessage('Your session has expired');
@@ -211,10 +224,40 @@ function CreateAssignmentPage() {
             fontWeight: '600',
           }}
         >
-          Create New Class
+          Tạo lớp học mới
         </p>
-        <form className="form-custom" onSubmit={formik.handleSubmit}>
+        <form className="form-custom" onSubmit={(e) => {e.preventDefault(); formik.handleSubmit();}}>
+        <div className="wrapper-custom">
+            <div className="form-group-container-custom">
+              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Tên lớp học</span>
+              <div className="form-group-custom">
+                <Input
+                  id="nameClass"
+                  name="nameClass"
+                  value={formik.values.nameClass}
+                  type="text"
+                  size="large"
+                  {...formik.getFieldProps('nameClass')}
+                />
+              </div>
+            </div>
+          </div>
           <div className="wrapper-custom">
+            <div className="form-group-container-custom">
+              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Khối lớp học</span>
+              <div className="form-group-custom">
+                <Input
+                  id="className"
+                  name="className"
+                  value={formik.values.classGrade}
+                  type="text"
+                  size="large"
+                  {...formik.getFieldProps('classGrade')}
+                />
+              </div>
+            </div>
+          </div>
+          {/* <div className="wrapper-custom">
             <div className="form-group-container-custom">
               <span style={{ paddingTop: '10px', fontSize: '18px' }}>Teacher</span>
               <div className="form-group-custom">
@@ -267,49 +310,13 @@ function CreateAssignmentPage() {
                 </label>
               </div>
             </div>
-            {formik.touched.asset && formik.errors.asset ? (
-              <div className="warning">{formik.errors.asset}</div>
+            {formik.touched.teacher && formik.errors.teacher ? (
+              <div className="warning">{formik.errors.teacher}</div>
             ) : null}
-          </div>
-          <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Assigned Date</span>
-              <div className="form-group-custom">
-                <DatePicker
-                  name="assignedDate"
-                  defaultValue={moment(currentDateString, 'DD/M/YYYY')}
-                  format={'DD/M/YYYY'}
-                  allowClear={false}
-                  disabledDate={disabledDate}
-                  onChange={handleClickDate}
-                  style={{ width: '100%' }}
-                  size="large"
-                  inputReadOnly={true}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Note</span>
-              <div className="form-group-custom">
-                <TextArea
-                  name="note"
-                  value={formik.values.note}
-                  size="large"
-                  autoSize={{
-                    minRows: 3,
-                    maxRows: 5,
-                  }}
-                  maxLength={254}
-                  {...formik.getFieldProps('note')}
-                />
-              </div>
-            </div>
-          </div>
+          </div> */}
           <div className="align-button-right">
             <button
-              disabled={formik.errors.user || formik.errors.asset}
+              // disabled={formik.errors.user || formik.errors.teacher}
               type="submit"
               className="btn btn-danger"
               style={{ marginRight: '30px' }}

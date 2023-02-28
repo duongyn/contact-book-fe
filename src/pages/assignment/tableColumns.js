@@ -12,7 +12,7 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
   const tableColumns = [
     {
       title: <div style={{ padding: '0px 0px 0px 0px' }}>No.</div>,
-      width: 30,
+      width: 100,
       dataIndex: 'id',
       sorter: {
         compare: (a, b) => {
@@ -39,7 +39,7 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
     {
       title: 'Class Name',
       dataIndex: 'className',
-      width: 130,
+      width: 300,
       sorter: {
         compare: (a, b) => {
           const codeA = a.className.toUpperCase();
@@ -65,7 +65,7 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
     {
       title: <div style={{ padding: '0px 0px 0px 0px' }}>Class Grade</div>,
       dataIndex: 'classGrade',
-      width: 150,
+      width: 200,
       sorter: {
         compare: (a, b) => {
           const nameA = a.classGrade.toUpperCase();
@@ -91,7 +91,7 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
     {
       title: 'Teacher Name',
       dataIndex: 'formTeacherCode',
-      width: 200,
+      width: 300,
       sorter: {
         compare: (a, b) => {
           const assignToA = a.formTeacherCode.toUpperCase();

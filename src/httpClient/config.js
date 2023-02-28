@@ -18,6 +18,6 @@ export const END_POINT = {
   report: '/reports',
   getValidAssetsForUpdateAssignment: '/assets/available-for-update-assignment',
   userAssignList: '/assignments/my-assignments',
-  assignmentDetail: '/assignment',
+  assignmentDetail: '/class',
   acceptReturnRequest: '/return-requests/accept',
 };
