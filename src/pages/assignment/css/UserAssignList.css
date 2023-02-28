@@ -1,0 +1,27 @@
+.ant-select-selection-search {
+  border-right: 1px solid #ddd;
+}
+
+.ant-select-arrow {
+  padding-left: 10px;
+  user-select: text;
+}
+
+.accept-btn,
+.accept-btn:hover {
+  color: red;
+}
+
+.decline-btn,
+.decline-btn:hover {
+  color: black;
+}
+
+.return-btn,
+.return-btn:hover {
+  color: blue;
+}
+
+.title {
+  color: #d6001c;
+}

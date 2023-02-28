@@ -1,0 +1,11 @@
+.create_button {
+    width: 153px;
+    height: 34px;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: #d6001c;
+    color: white;
+    border: none;
+  }

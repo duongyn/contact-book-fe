@@ -1,0 +1,21 @@
+.newStyle .ant-modal-footer {
+  border-top-width: 0;
+}
+
+.newStyle .ant-modal-header {
+  background-color: #e4e8eb !important;
+  border-bottom: 1px solid black;
+}
+.newStyle .ant-modal-title {
+  color: rgb(171, 42, 22);
+}
+.align-button-right {
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+input.error {
+  border-color: red;
+}

@@ -1,0 +1,52 @@
+.container-fluid-custom {
+  padding-right: 80px;
+}
+
+.navbar-brand-custom {
+  color: whitesmoke;
+}
+
+.support-content {
+  color: whitesmoke;
+}
+
+.toggle-custom {
+  color: whitesmoke !important;
+}
+
+.toggle-custom:hover {
+  color: white;
+}
+
+.wrapper {
+  position: relative;
+  padding-left: 50px !important;
+}
+
+.icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  position: absolute;
+  box-sizing: border-box;
+  top: 50%;
+  left: 280px;
+  transform: translateY(-50%);
+  padding-top: 19px;
+}
+
+.password {
+  margin-left: 30px !important;
+}
+
+.label {
+  width: 120px !important;
+}
+
+.form-control.is-invalid,
+.was-validated .form-control:invalid {
+  background-image: none;
+}
+
+.invalid-feedback {
+  padding-left: 30px !important;
+}

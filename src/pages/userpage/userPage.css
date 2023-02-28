@@ -1,0 +1,7 @@
+.ant-select-selection-search {
+  border-right: 1px solid #ddd;
+}
+.ant-select-arrow {
+  padding-left: 10px;
+  user-select: text;
+}
