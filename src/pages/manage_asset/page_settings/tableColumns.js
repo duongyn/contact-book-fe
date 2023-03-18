@@ -1,6 +1,6 @@
 import { EditFilled, CloseCircleOutlined } from '@ant-design/icons';
 import { Space, Button, Tooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SortDirection } from '../../../context/SortDirection';
 
 const navigate = useNavigate;
@@ -49,37 +49,22 @@ const configTableColumns = (showDetailModal, showDeleteModal) => {
     {
       title: '',
       render: record =>
-        record.state === 'Assigned' ? (
-          <Space size="small">
-            <Tooltip title="edit">
-              <Button type="text" icon={<EditFilled />} disabled />
-            </Tooltip>
-            <Tooltip title="delete">
-              <Button type="text" icon={<CloseCircleOutlined />} disabled />
-            </Tooltip>
-          </Space>
-        ) : (
-          <Space size="small">
-            <Tooltip title="edit">
-              <Button
-                type="text"
-                icon={<EditFilled />}
-                onClick={() => {
-                  navigate(``);
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="delete">
-              <Button
-                type="text"
-                icon={<CloseCircleOutlined style={{ color: '#D6001C' }} />}
-                onClick={() => {
-                  showDeleteModal(record);
-                }}
-              />
-            </Tooltip>
-          </Space>
-        ),
+        <Space size="small">
+          <Tooltip title="edit">
+            <Link to={{ pathname: '/subject/edit/' + record.subjectId }}>
+              <Button type="text" icon={<EditFilled />} />
+            </Link>
+          </Tooltip>
+          <Tooltip title="delete">
+            <Button
+              type="text"
+              icon={<CloseCircleOutlined style={{ color: '#D6001C' }} />}
+              onClick={() => {
+                showDeleteModal(record);
+              }}
+            />
+          </Tooltip>
+        </Space>
     },
   ];
   return tableColumns;

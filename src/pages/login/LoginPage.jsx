@@ -40,7 +40,11 @@ function LoginPage() {
       localStorage.setItem('userLocation', decodedUser.adminLocation);
       navigate('/');
     } catch (error) {
-      if (error) {
+      if (error.response.data.message) {
+        console.error(error);
+        showErrorMessage(error.response.data.message);
+      }
+      else{
         showErrorMessage('Username or password is incorrect. Please try again');
       }
     }

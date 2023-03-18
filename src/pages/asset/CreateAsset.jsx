@@ -93,7 +93,7 @@ const CreateAsset = () => {
           draggable: true,
           progress: undefined,
         });
-        //console.error(e);
+        console.error(e);
       });
   };
 

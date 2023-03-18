@@ -10,7 +10,7 @@ import { Input } from 'antd';
 import { checkUser, disableUser } from '../../services/index';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import instance from '../../httpClient/axiosInstance';
-import UserService from '../../services/userService';
+import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -22,7 +22,6 @@ import moment from 'moment';
 import { FilterFilled } from '@ant-design/icons';
 import { typeList } from './typeList';
 import FilterMenu from './FilterMenu';
-import { SortDirection } from '../../context/SortDirection';
 
 const { Option } = Select;
 const itemRender = (_, type, originalElement) => {
@@ -37,13 +36,6 @@ const itemRender = (_, type, originalElement) => {
 
 const UserPage = () => {
   let navigate = useNavigate();
-  const user = {
-    userCode: 'userCode',
-    fullname: 'fullname',
-    username: 'userName',
-    joinedDate: '11/12/1998',
-    type: null
-  }
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [error, setError] = useState('');
@@ -146,7 +138,7 @@ const UserPage = () => {
       render: record => (
         <Space size="small">
           <Tooltip title="edit">
-            <Link to={{ pathname: '/user/edit/' + record.userCode }}>
+            <Link to={{ pathname: '/user/edit/' + record.username }}>
               <Button type="text" icon={<EditFilled />} />
             </Link>
           </Tooltip>
@@ -166,16 +158,18 @@ const UserPage = () => {
   const { state } = useLocation();
   const getDataList = list => {
     list.map(e => {
-      usersList.push({
-        userCode: e.userCode,
-        fullname: e.lastName.concat(' ' + e.firstName),
-        username: e.username,
-        joinedDate: moment(new Date(e.joinedDate)).format('MM/DD/yyyy'),
-        type: e.roleName,
-        dob: moment(new Date(e.dob)).format('MM/DD/yyyy'),
-        gender: e.gender,
-        location: e.address,
-      });
+      if (e.username != currentUser) {
+        usersList.push({
+          userCode: e.userCode,
+          fullname: e.lastName.concat(' ' + e.firstName),
+          username: e.username,
+          joinedDate: moment(new Date(e.joinedDate)).format('MM/DD/yyyy'),
+          type: e.roleName,
+          dob: moment(new Date(e.dob)).format('MM/DD/yyyy'),
+          gender: e.gender,
+          location: e.address,
+        });
+      }
     });
     setUsers(usersList);
     setUserSearch(usersList);
@@ -238,8 +232,8 @@ const UserPage = () => {
   };
   const typeFilterMenu = <FilterMenu handleFilter={handleTypeFilter} menuList={typeList} />;
   const showDeleteModal = async data => {
-    let response = await checkUser(data.staffCode);
-    if (!response.data) {
+    //let response = await checkUser(data.userCode);
+    if (data.userCode) {
       setIsDeleteModalVisible(true);
       setDeleteModalData(data);
     } else {
@@ -282,21 +276,21 @@ const UserPage = () => {
 
   const handleDeleteModalOK = async () => {
     setIsDeleteModalVisible(false);
-    const userData = {
-      staffCode: deleteModalData.staffCode,
-      status: deleteModalData.status,
-      lastName: deleteModalData.lastName,
-      username: deleteModalData.username,
-    };
-    let notifi = await disableUser(userData);
-    if (notifi.status === 200) {
-      message.info('Disable successfully!');
+    disableUser(deleteModalData.userCode).then(response => {
+      showSuccessMessage(`Delete user success!`);
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-    } else {
-      message.info('Error!');
-    }
+    })
+      .catch(e => {
+        if(e.response.data.message) {
+          showErrorMessage('Error: ' + e.response.data.message);
+          console.error(e);
+        }
+        else {
+          showErrorMessage('Error: '+e);
+        }
+      });
   };
 
   const handleTrim = evt => {
@@ -397,7 +391,7 @@ const UserPage = () => {
         onOk={handleDeleteModalOK}
         okText="Disable"
       >
-        <p>Are you sure want to disable {deleteModalData.staffCode}</p>
+        <p>Are you sure want to disable {deleteModalData.userCode}</p>
       </Modal>
       <Modal
         title="Can not disable user"

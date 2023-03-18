@@ -7,8 +7,7 @@ import { FilterFilled } from '@ant-design/icons';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
-import AssetService from '../../services/subjectService';
-import CategoryService from '../../services/categoryService';
+import SubjectService from '../../services/subjectService';
 import configTableColumns from './page_settings/tableColumns';
 import { stateList } from './page_settings/stateFilterMenuData';
 import DetailModal from './components/DetailModal';
@@ -75,7 +74,7 @@ const ManageAsset = () => {
   const [deleteModalData, setDeleteModalData] = useState({});
 
   useEffect(() => {
-    AssetService.getAll()
+    SubjectService.getAll()
       .then(response => {
         localStorage.removeItem('defaultList');
         localStorage.setItem('defaultList', JSON.stringify(response.data));
@@ -88,44 +87,20 @@ const ManageAsset = () => {
   }, [deleteSuccess]);
 
   useEffect(() => {
-    AssetService.getAll()
+    SubjectService.getAll()
       .then(response => {
         localStorage.removeItem('nonDefaultList');
         localStorage.setItem('nonDefaultList', JSON.stringify(response.data));
         setLoading(true);
       })
       .catch(error => {
+        console.log(error);
         setLoading(false);
       });
   }, []);
 
-  useEffect(() => {
-    // CategoryService.getAll()
-    //   .then(response => {
-    //     let categories = [];
-    //     response.data.map(item => {
-    //       categories.push({
-    //         label: item.categoryName,
-    //         key: item.categoryId,
-    //       });
-    //     });
-    //     categories.push({ type: 'divider' });
-    //     categories.push({
-    //       label: 'Clear filter',
-    //       key: 'clear',
-    //     });
-    //     setLoading(true);
-    //     setCategoriesList(categories);
-    //   })
-    //   .catch(() => {
-    //     setLoading(false);
-    //   });
-  }, []);
-
   //reload data when filter and search recognized
   useFilterSearch(
-    stateFilter,
-    categoryFilter,
     searchText,
     searchValue,
     deleteSuccess,
@@ -135,7 +110,7 @@ const ManageAsset = () => {
   );
 
   const showDetailModal = data => {
-    AssetService.getByID(data.subjectId).then(response => {
+    SubjectService.getByID(data.subjectId).then(response => {
       setDetailModalData(response.data);
     });
     setIsDetailModalVisible(true);
@@ -143,19 +118,9 @@ const ManageAsset = () => {
 
   const showDeleteModal = async data => {
     try {
-      const assetHasHistoricalAssign = await AssetService.hasHistoricalAssigns(data.assetCode);
-      const assetHasWaitingAssign = await AssetService.hasWaitingAssigns(data.assetCode);
-      if (assetHasHistoricalAssign.data) {
-        setIsWarnModalVisible(true);
-        return;
-      } else if (assetHasWaitingAssign.data) {
-        setIsWaitingModalVisible(true);
-        return;
-      } else {
-        setIsDeleteModalVisible(true);
-        setDeleteModalData(data);
-        return;
-      }
+      setIsDeleteModalVisible(true);
+      setDeleteModalData(data);
+      return;
     } catch (error) {
       console.error(error);
     }
@@ -170,86 +135,26 @@ const ManageAsset = () => {
       setIsDeleteModalVisible(false);
       return;
     }
-    if (isWarnModalVisible) {
-      setIsWarnModalVisible(false);
-      return;
-    }
-    if (isWaitingModalVisible) {
-      setIsWaitingModalVisible(false);
-      return;
-    }
   };
 
   const handleDeleteModalOK = async () => {
-    try {
-      const respone = await instance.delete(`/assets/${deleteModalData.assetCode}`, {
-        headers: authHeader(),
-      });
+    SubjectService.deleteById(deleteModalData.subjectId).then(response => {
       showSuccessMessage('Delete asset success!');
       setIsDeleteModalVisible(false);
       setDeleteSuccess(true);
-    } catch (error) {
+    }).catch(error => {
       showErrorMessage('Error: ' + error.response.data);
       setIsDeleteModalVisible(false);
-    }
-    return;
-  };
-
-  const handleStateFilter = event => {
-    const selected = Number.isInteger(event.key) ? parseInt(event.key) : event.key;
-    if (selected === 'clear') {
-      setStateFilterLabel('State');
-      setStateFilter(' ');
-      return;
-    }
-    const stateMap = {
-      1: 'Available',
-      2: 'Not Available',
-      3: 'Assigned',
-      4: 'Waiting for recycling',
-      5: 'Recycled',
-    };
-    const selectedState = stateMap[selected];
-    setStateFilterLabel(selectedState);
-    setStateFilter(selectedState);
-  };
-
-  const handleCategoryFilter = event => {
-    const selected = Number.isInteger(event.key) ? parseInt(event.key) : event.key;
-    if (selected === 'clear') {
-      setCategoryFilterLabel('Category');
-      setCategoryFilter(' ');
-      return;
-    }
-    const categoryMap = {};
-    categoriesList.map(item => {
-      categoryMap[item.key] = item.label;
     });
-    const selectedCategory = categoryMap[selected];
-    setCategoryFilterLabel(selectedCategory);
-    setCategoryFilter(selectedCategory);
   };
 
   const handleSearch = value => {
     const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-    if (stateFilter || categoryFilter) {
-      if (value.trim().length <= 50 && !specialChars.test(value)) {
-        setSearchText(value.trim());
-        setSearchValue('do-search');
-      }
-    } else {
-      if (value.trim().length > 0 && value.trim().length <= 50 && !specialChars.test(value)) {
-        setSearchText(value.trim());
-        setSearchValue('do-search');
-      }
+    if (value.trim().length <= 50 && !specialChars.test(value)) {
+      setSearchText(value.trim());
+      setSearchValue(value.trim());
     }
   };
-
-  const stateFilterMenu = <FilterMenu handleFilter={handleStateFilter} menuList={stateList} />;
-
-  const categoryFilterMenu = (
-    <FilterMenu handleFilter={handleCategoryFilter} menuList={categoriesList} />
-  );
 
   const handleTrim = evt => {
     setSearchText(evt.target.value.trim());
@@ -334,30 +239,7 @@ const ManageAsset = () => {
               closable={false}
               width={420}
             >
-              <p>Do you want to delete this asset {deleteModalData.assetCode}</p>
-            </Modal>
-            <Modal
-              visible={isWarnModalVisible}
-              onCancel={handleCancel}
-              title="Cannot Delete Asset"
-              footer={null}
-            >
-              <p>
-                Cannot delete the asset because it belongs to one or more historical assignments.
-              </p>
-              <br></br>
-              <p>If the asset is not able to be used anymore, please update its state in </p>
-              <Link to="/asset/edit">Edit Asset Page</Link>
-            </Modal>
-            <Modal
-              visible={isWaitingModalVisible}
-              onCancel={handleCancel}
-              title="Cannot Delete Asset"
-              footer={null}
-            >
-              <p>
-                Cannot delete the asset because it is having waiting for acceptance assignments.
-              </p>
+              <p>Do you want to delete this subject {deleteModalData.subjectName} {deleteModalData.subjectGrade}</p>
             </Modal>
           </Col>
         </Row>

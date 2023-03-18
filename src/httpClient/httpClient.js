@@ -21,7 +21,7 @@ const checkUser = (endPoint, data) => {
 };
 
 const disableUser = (endPoint, data) => {
-  return instance.put(endPoint, data);
+  return instance.put(endPoint, data, { headers: AuthHeaders() });
 };
 
 const changePassword = (endPoint, data) => {

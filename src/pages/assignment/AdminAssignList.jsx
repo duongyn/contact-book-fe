@@ -189,14 +189,6 @@ const AdminAssignList = () => {
     }
   };
 
-  const handleAssignedDate = event => {
-    if (event) {
-      setAssignedDateFilter(event.format('yyyy-MM-DD'));
-    } else {
-      setAssignedDateFilter('');
-    }
-  };
-
   const handleReturnModalOK = () => {
     const requestDto = {
       assignmentId: returnModalData,
@@ -316,7 +308,7 @@ const AdminAssignList = () => {
     <div style={{ display: 'block', width: '1300px' }}>
       <ConfigProvider renderEmpty={customizeEmpty ? customizeRenderEmpty : undefined}>
         <Row justify="start" align="middle">
-          <h2 className="title">Assignment List</h2>
+          <h2 className="title">Danh sách lớp học</h2>
         </Row>
         <Row style={{ marginBottom: '50px' }} className="utility_bar">
           <Col span={7} push={3}>
@@ -379,19 +371,7 @@ const AdminAssignList = () => {
               closable={false}
               width={420}
             >
-              <p>Do you want to delete this assignment {deleteModalData.id}</p>
-            </Modal>
-            <Modal
-              title="Are you sure ?"
-              visible={isReturnModalVisible}
-              onCancel={handleCancel}
-              onOk={handleReturnModalOK}
-              okText="Yes"
-              cancelText="No"
-              closable={false}
-              width={420}
-            >
-              <p>Do you want to create a returning request for this asset?</p>
+              <p>Do you want to delete this class {deleteModalData.id}</p>
             </Modal>
           </Col>
         </Row>

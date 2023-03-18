@@ -198,24 +198,6 @@ function CreateAssignmentPage() {
 
   return (
     <>
-      <UserModalComponent
-        visible={isUserModalVisible}
-        handleUserOk={handleUserOk}
-        handleUserCancel={handleUserCancel}
-        handleSearchUserModal={handleSearchUserModal}
-        setSelectedRow={setSelectedUserRow}
-        showUserData={showUserData}
-        afterClose={handleUserClose}
-      />
-      <AssetModalComponent
-        visible={isAssetModalVisible}
-        handleAssetOk={handleAssetOk}
-        handleAssetCancel={handleAssetCancel}
-        handleSearchAssetModal={handleSearchAssetModal}
-        setSelectedRow={setSelectedAssetRow}
-        showAssetData={showAssetData}
-        afterClose={handleAssetClose}
-      />
       <div className="assignment-page">
         <p
           style={{

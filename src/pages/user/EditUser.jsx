@@ -15,19 +15,18 @@ const EditUser = () => {
     lastName: '',
     dob: '',
     gender: 'Male',
-    joinedDate: '',
-    type: '',
+    roleName: '',
     updatedBy: currentUser,
   };
 
   let navigate = useNavigate();
   const [newUser, setNewUser] = useState(initialUserState);
   const params = useParams();
-  const code = params.staffCode;
+  const username = params.username;
 
   useEffect(() => {
-    if (code) {
-      UserService.getById(code)
+    if (username) {
+      UserService.getByUsername(username)
         .then(response => {
           setNewUser(response.data);
         })
@@ -39,12 +38,12 @@ const EditUser = () => {
           console.error(e.response.data);
         });
     }
-  }, [code]);
+  }, [username]);
 
   const [touched, setTouched] = useState({
     dob: false,
     joinedDate: false,
-    type: false,
+    roleName: false,
   });
 
   const handleInputChange = event => {
@@ -61,7 +60,17 @@ const EditUser = () => {
 
   const editUser = e => {
     e.preventDefault();
-    UserService.edit(newUser)
+    const editUser = {
+      userCode: newUser.userCode,
+      editField: 'information',
+      userFName: newUser.firstName,
+      userLName: newUser.lastName,
+      userAddress: newUser.address,
+      roleName: [newUser.roleName],
+      dob: newUser.dob,
+      gender: newUser.gender
+    }
+    UserService.edit(editUser)
       .then(response => {
         showSuccessMessage(`Edit user success!`);
         setTimeout(() => {
@@ -75,10 +84,9 @@ const EditUser = () => {
   };
 
   const errorDob = validateDate(newUser.dob);
-  const errorJoinedDate = validateJoinedDate(newUser.joinedDate, newUser.dob);
-  const errorType = validateType(newUser.type);
+  const errorType = validateType(newUser.roleName);
 
-  const formValid = !errorDob && !errorJoinedDate && !errorType;
+  const formValid = !errorDob && !errorType;
 
   const onCancel = () => {
     setNewUser(initialUserState);
@@ -109,9 +117,6 @@ const EditUser = () => {
             max={new Date().toISOString().split('T')[0]}
             isInvalid={touched.dob && Boolean(errorDob)}
             isValid={touched.dob && !Boolean(errorDob)}
-            onKeyDown={e => {
-              e.preventDefault();
-            }}
           />
           <Form.Control.Feedback type="invalid">{errorDob}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
@@ -165,25 +170,6 @@ const EditUser = () => {
           )}
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Joined Date</Form.Label>
-          <Form.Control
-            name="joinedDate"
-            value={newUser.joinedDate}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            type="date"
-            min={new Date('1900/01/02').toISOString().split('T')[0]}
-            max={new Date().toISOString().split('T')[0]}
-            isInvalid={touched.joinedDate && Boolean(errorJoinedDate)}
-            isValid={touched.joinedDate && !Boolean(errorJoinedDate)}
-            onKeyDown={e => {
-              e.preventDefault();
-            }}
-          />
-          <Form.Control.Feedback type="invalid">{errorJoinedDate}</Form.Control.Feedback>
-          <Form.Control.Feedback type="valid"></Form.Control.Feedback>
-        </Form.Group>
-        <Form.Group className="mb-3">
           <Form.Label className="mr-5">Type</Form.Label>
           <Form.Select
             size="lg"
@@ -195,16 +181,26 @@ const EditUser = () => {
             isValid={touched.type && !Boolean(errorType)}
             onBlur={handleBlur}
           >
-            {(newUser.type == 'ADMIN' && (
+            {(newUser.roleName[0] == 'ADMIN' && (
               <option value="ADMIN" selected>
                 Admin
               </option>
             )) || <option value="ADMIN">Admin</option>}
-            {(newUser.type == 'STAFF' && (
-              <option value="STAFF" selected>
-                Staff
+            {(newUser.roleName[0] == 'TEACHER' && (
+              <option value="TEACHER" selected>
+                Teacher
               </option>
-            )) || <option value="STAFF">Staff</option>}
+            )) || <option value="TEACHER">Teacher</option>}
+            {(newUser.roleName[0] == 'MANAGER' && (
+              <option value="MANAGER" selected>
+                Manager
+              </option>
+            )) || <option value="MANAGER">Manager</option>}
+            {(newUser.roleName[0] == 'STUDENT' && (
+              <option value="STUDENT" selected>
+                Student
+              </option>
+            )) || <option value="STUDENT">Student</option>}
           </Form.Select>
           <Form.Control.Feedback type="invalid">{errorType}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>

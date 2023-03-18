@@ -6,11 +6,11 @@ const create = data => {
   return instance.post(END_POINT.listUsers, data, { headers: authHeader() });
 };
 const edit = data => {
-  return instance.put(END_POINT.listUsers, data, { headers: authHeader() });
+  return instance.put(END_POINT.listUsers + '/update', data, { headers: authHeader() });
 };
 
-const getById = code => {
-  return instance.get(END_POINT.listUsers + `/${code}`, { headers: authHeader() });
+const getByUsername = username => {
+  return instance.get(END_POINT.listUsers + `/get/${username}`, { headers: authHeader() });
 };
 
 const getAllUsers = () => {
@@ -32,7 +32,7 @@ const getListWithEditUser = username => {
 const UserService = {
   create,
   edit,
-  getById,
+  getByUsername,
   getUsersInAdminLocation,
   getListWithCreatedUser,
   getListWithEditUser,

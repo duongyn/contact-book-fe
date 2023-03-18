@@ -117,80 +117,27 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
     {
       title: '',
       render: record =>
-        record.state === 'Accepted' ? (
-          <Space size="small">
-            <Tooltip title="edit">
-              <Button
-                type="text"
-                icon={<EditFilled />}
-                disabled={record.state === 'Accepted'}
-                onClick={() => {
-                  navigate(`/assignment/edit`, { state: { editAssignment: record } });
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="delete">
-              <Button
-                type="text"
-                icon={<CloseCircleOutlined />}
-                disabled={record.state === 'Accepted'}
-                style={record.state !== 'Accepted' ? { color: '#D6001C' } : {}}
-                onClick={() => {
-                  showDeleteModal(record);
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="return">
-              <Button
-                type="text"
-                style={{ color: '#3333ff' }}
-                icon={<UndoOutlined />}
-                onClick={() => {
-                  showReturnModal(record);
-                }}
-              />
-            </Tooltip>
-          </Space>
-        ) : (
-          <Space size="small">
-            <Tooltip title="edit">
-              <Button
-                type="text"
-                icon={<EditFilled />}
-                disabled={record.state === 'Accepted'}
-                onClick={() => {
-                  navigate(`/assignment/edit`, { state: { editAssignment: record } });
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="delete">
-              <Button
-                type="text"
-                icon={<CloseCircleOutlined />}
-                disabled={record.state === 'Accepted'}
-                style={record.state !== 'Accepted' ? { color: '#D6001C' } : {}}
-                onClick={() => {
-                  showDeleteModal(record);
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="return">
-              <Button
-                type="text"
-                icon={<UndoOutlined />}
-                disabled={record.state !== 'Accepted' || record.state === 'Waiting For Returning'}
-                style={
-                  record.state !== 'Accepted' || record.state === 'Waiting For Returning'
-                    ? {}
-                    : { color: '#3333ff' }
-                }
-                onClick={() => {
-                  showReturnModal(record);
-                }}
-              />
-            </Tooltip>
-          </Space>
-        ),
+      <Space size="small">
+      <Tooltip title="edit">
+        <Button
+          type="text"
+          icon={<EditFilled />}
+          onClick={() => {
+            navigate(`/class/edit`, { state: { editClass: record } });
+          }}
+        />
+      </Tooltip>
+      <Tooltip title="delete">
+        <Button
+          type="text"
+          icon={<CloseCircleOutlined />}
+          style={{ color: '#D6001C' }}
+          onClick={() => {
+            showDeleteModal(record);
+          }}
+        />
+      </Tooltip>
+    </Space>
     },
   ];
   return tableColumns;

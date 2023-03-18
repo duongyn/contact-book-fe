@@ -9,7 +9,7 @@ export const updatePasswordFirstTime = data => {
 };
 
 export const disableUser = data => {
-  return httpClient.disableUser(END_POINT.disableUser, data);
+  return httpClient.disableUser(END_POINT.disableUser + `/${data}`);
 };
 
 export const checkUser = data => {

@@ -9,7 +9,7 @@ export const END_POINT = {
   login: '/authenticate',
   listUsers: '/users',
   checkUser: '/users/check',
-  disableUser: '/users/disable',
+  disableUser: '/users/delete',
   updatePasswordFirstTime: '/update-password-first-time',
   changePassword: '/users/change-password',
   checkPassword: '/users/get-password',

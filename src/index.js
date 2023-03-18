@@ -17,13 +17,11 @@ import reportWebVitals from './reportWebVitals';
 import { ROLE } from './util/enum';
 import UserPage from './pages/userpage/UserPage';
 import AdminAssignList from './pages/assignment/AdminAssignList';
-import ReportPage from './pages/report/Report';
 import CreateAsset from './pages/asset/CreateAsset';
 import EditAssignmentPage from './pages/edit-assignment-page/EditAssignmentPage';
 
-import AssignmentPage from './pages/assignment/UserAssignList';
-
 import ViewReturningRequest from './pages/view_returning_request/ViewReturningRequest';
+import EditSubject from './pages/asset/EditSubject';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
@@ -73,7 +71,7 @@ root.render(
                 }
               />
               <Route
-                path="edit/:staffCode"
+                path="edit/:username"
                 element={
                   <Layout title="QL người dùng > Chỉnh sửa">
                     <EditUser />
@@ -100,7 +98,12 @@ root.render(
                 </Layout>
               }
             ></Route>
-            <Route path="edit"></Route>
+            <Route path="edit/:subjectid"
+            element={
+              <Layout title="QL môn học > Chỉnh sửa">
+                <EditSubject />
+              </Layout>
+            }></Route>
           </Route>
           <Route path="class">
             <Route element={<RequireAuth allowedRoles={[ROLE.ADMIN]}></RequireAuth>}>
