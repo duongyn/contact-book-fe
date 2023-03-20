@@ -11,14 +11,14 @@ import LoginPage from './pages/login/LoginPage';
 import RequireAuth from './pages/requireAuth/RequireAuth';
 import UnauthorizedPage from './pages/unauthorized/UnauthorizedPage';
 import CreateUser from './pages/user/CreateUser';
-import ManageAsset from './pages/manage_asset/ManageSubject';
+import ManageAsset from './pages/manage_subject/ManageSubject';
 import EditUser from './pages/user/EditUser';
 import reportWebVitals from './reportWebVitals';
 import { ROLE } from './util/enum';
 import UserPage from './pages/userpage/UserPage';
 import AdminAssignList from './pages/assignment/AdminAssignList';
 import CreateAsset from './pages/asset/CreateAsset';
-import EditAssignmentPage from './pages/edit-assignment-page/EditAssignmentPage';
+import EditAssignmentPage from './pages/edit-class-page/EditClassPage';
 
 import ViewReturningRequest from './pages/view_returning_request/ViewReturningRequest';
 import EditSubject from './pages/asset/EditSubject';

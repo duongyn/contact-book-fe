@@ -1,22 +1,16 @@
 import React, { useEffect } from 'react';
 import './ManageSubject.css';
-import { Table, Modal, Input, Dropdown, Empty } from 'antd';
+import { Table, Modal, Input, Empty } from 'antd';
 import { Row, Col } from 'antd/lib/grid';
 import 'antd/dist/antd.variable.min.css';
-import { FilterFilled } from '@ant-design/icons';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import SubjectService from '../../services/subjectService';
 import configTableColumns from './page_settings/tableColumns';
-import { stateList } from './page_settings/stateFilterMenuData';
 import DetailModal from './components/DetailModal';
-import FilterMenu from './components/FilterMenu';
 import useFilterSearch from './hooks/useFilterSearch';
-import instance from '../../httpClient/axiosInstance';
-import { toast } from 'react-toastify';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
-import authHeader from '../../services/AuthHeader';
 
 const { Search } = Input;
 
