@@ -13,21 +13,42 @@ const getListBySearchKey = data => {
   });
 };
 
+const getValidTeachers = () => {
+  return instance.get('/classes/get-valid-teachers', {
+    headers: AuthHeaders()
+  })
+}
+
+const getValidStudents = () => {
+  return instance.get('/classes/get-valid-students', {
+    headers: AuthHeaders()
+  })
+}
+
 const getByID = id => {
   return instance.get(`/classes/${id}`, {
     headers: AuthHeaders(),
   });
 };
 
-const deleteAssignment = id => {
-  return instance.delete(`/classes/${id}`, { headers: AuthHeaders() });
+const deleteClass = id => {
+  return instance.put(`/classes/delete/${id}`, { headers: AuthHeaders() });
 };
 
-const AssignService = {
+const createStudentList = data => {
+  return instance.put('classes/db-to-excel',data, {
+    responseType: 'blob', headers: AuthHeaders()
+  });
+}
+
+const ClassService = {
   getDefault,
   getByID,
   getListBySearchKey,
-  deleteAssignment,
+  deleteClass,
+  getValidTeachers,
+  createStudentList,
+  getValidStudents
 };
 
-export default AssignService;
+export default ClassService;

@@ -2,6 +2,7 @@ import { EditFilled, CloseCircleOutlined, UndoOutlined } from '@ant-design/icons
 import { Space, Button, Tooltip } from 'antd';
 import ReturnRequestService from '../../services/returnRequestService';
 import './css/AdminAssignList.css';
+import { Link, useNavigate } from 'react-router-dom';
 
 const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, navigate) => {
   const isWaitForReturning = async assignId => {
@@ -117,27 +118,23 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
     {
       title: '',
       render: record =>
-      <Space size="small">
-      <Tooltip title="edit">
-        <Button
-          type="text"
-          icon={<EditFilled />}
-          onClick={() => {
-            navigate(`/class/edit`, { state: { editClass: record } });
-          }}
-        />
-      </Tooltip>
-      <Tooltip title="delete">
-        <Button
-          type="text"
-          icon={<CloseCircleOutlined />}
-          style={{ color: '#D6001C' }}
-          onClick={() => {
-            showDeleteModal(record);
-          }}
-        />
-      </Tooltip>
-    </Space>
+        <Space size="small">
+          <Tooltip title="edit">
+            <Link to={{ pathname: '/class/edit/' + record.id }}>
+              <Button type="text" icon={<EditFilled />} />
+            </Link>
+          </Tooltip>
+          <Tooltip title="delete">
+            <Button
+              type="text"
+              icon={<CloseCircleOutlined />}
+              style={{ color: '#D6001C' }}
+              onClick={() => {
+                showDeleteModal(record);
+              }}
+            />
+          </Tooltip>
+        </Space>
     },
   ];
   return tableColumns;

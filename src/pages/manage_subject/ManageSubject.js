@@ -172,7 +172,7 @@ const ManageAsset = () => {
   };
 
   return (
-    <div className="asset__list" style={{ display: 'block', width: '1300px' }}>
+    <div className="asset__list" style={{ display: 'block', width: '1000px' }}>
       <ConfigProvider renderEmpty={customizeEmpty ? customizeRenderEmpty : undefined}>
         <Row justify="start" align="middle">
           <h2 className="title">Subject List</h2>

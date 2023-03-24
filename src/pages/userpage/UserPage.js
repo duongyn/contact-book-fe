@@ -322,7 +322,7 @@ const UserPage = () => {
   };
 
   return (
-    <div style={{ display: 'block', width: '1300px' }}>
+    <div style={{ display: 'block', width: '1000px', marginLeft: '50px'}}>
       <Row justify="start" align="middle">
         <h2 className="title">Danh sách người dùng</h2>
       </Row>

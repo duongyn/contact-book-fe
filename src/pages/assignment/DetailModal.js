@@ -40,7 +40,9 @@ const DetailModal = detailModalData => {
       <Row>
         <Space size="small">
           <p className="field_name">Student: </p>{' '}
-          <p className="field_value">{detailModalData.listStudentCode}</p>
+          <div className="field_value">{detailModalData.listStudentCode.map((el, index) => 
+            <div key={index}>{el} </div>
+          )}</div>
         </Space>
       </Row>
     </Modal>

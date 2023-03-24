@@ -1,316 +1,209 @@
-import { SearchOutlined } from '@ant-design/icons';
-import { DatePicker, Input } from 'antd';
-import dateformat from 'dateformat';
-import { useFormik } from 'formik';
-import moment from 'moment';
+import { Button, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
-import useAuth from '../../hooks/useAuth';
-import AssetService from '../../services/subjectService';
-import AssignmentService from '../../services/assignmentService';
-import UserService from '../../services/userService';
-import { convertStringToAssignmentDateStringFormat, DATE_FORMAT } from '../../util/dateformat';
-import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
+import { useNavigate, useParams } from 'react-router-dom';
+import ClassService from '../../services/classService';
 import './editassignment.css';
+import useAuth from '../../hooks/useAuth';
+import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
+import instance from '../../httpClient/axiosInstance';
+import authHeader from '../../services/AuthHeader';
+import DetailModal from './TeacherModal';
+import axios from 'axios';
 
-const { Search, TextArea } = Input;
+const EditClassPage = () => {
+  const currentUser = useAuth().user.sub;
 
-function EditClassPage() {
-  const currentDateString = dateformat(new Date(), DATE_FORMAT.createAssignment).toString();
-  const disabledDate = current =>
-    current.isBefore(moment(currentDateString, 'DD/M/YYYY').startOf('day'));
+  const initialSubjectState = {
+    id: 0,
+    className: ' ',
+    classGrade: ' ',
+    formTeacherCode: ' ',
+    updatedBy: currentUser,
+  };
 
   let navigate = useNavigate();
-  const { user } = useAuth();
-
-  const [isUserModalVisible, setUserModalVisible] = useState(false);
-  const [isAssetModalVisible, setAssetModalVisible] = useState(false);
-
-  const [userData, setUserData] = useState([]);
-  const [assetData, setAssetData] = useState([]);
-
-  const [userSearchCondition, setUserSearchCondition] = useState('');
-  const [assetSearchCondition, setAssetSearchCondition] = useState('');
-
-  const [selectedUserRow, setSelectedUserRow] = useState({});
-  const [selectedAssetRow, setSelectedAssetRow] = useState({});
-
-  const showUserData = userData.filter(
-    user =>
-      user.staffCode.toLowerCase().includes(userSearchCondition.toLowerCase()) ||
-      user.fullName.toLowerCase().includes(userSearchCondition.toLowerCase())
-  );
-  const showAssetData = assetData.filter(
-    asset =>
-      asset.assetCode.toLowerCase().includes(assetSearchCondition.toLowerCase()) ||
-      asset.name.toLowerCase().includes(assetSearchCondition.toLowerCase())
-  );
-
-  const formik = useFormik({
-    initialValues: {
-      nameClass: '',
-      classGrade: ''
-    },
-    onSubmit: values => {
-      
-      // let assignment = {
-      //   assignTo: selectedUserRow.staffCode,
-      //   assignBy: user.sub,
-      //   assignDateString: convertStringToAssignmentDateStringFormat(values.assignedDate),
-      //   assetCode: selectedAssetRow.assetCode,
-      //   note: values.note.trim(),
-      //   state: 'WAITING_FOR_ACCEPTANCE',
-      // };
-
-      let newClass = {
-        className: values.nameClass,
-        classGrade: values.classGrade
-      }
-
-      handleSubmitClass(newClass);
-    }
+  const [editClass, setEditClass] = useState(initialSubjectState);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState();
+  const [teacherListData, setTeacherListData] = useState({
+    userCode: '',
+    fullName: '',
+    username: '',
+    roleName: '',
+    gender: '',
   });
+  const [selectedUserRow, setSelectedUserRow] = useState({});
+  const params = useParams();
+  const classId = params.classid;
 
   useEffect(() => {
-    // async function fetchData() {
-    //   let userResponse = null;
-    //   let assetResponse = null;
-    //   try {
-    //     userResponse = await UserService.getUsersInAdminLocation(user.sub);
-    //     assetResponse = await AssetService.getValidAssetsForAssignment();
-    //   } catch (error) {
-    //     if (error.response.status === 400 || error.response.status === 401) {
-    //       showErrorMessage('Your session has expired');
-    //       localStorage.removeItem('token');
-    //       navigate('/login');
-    //     }
-    //   }
+    if (classId) {
+      ClassService.getByID(classId)
+        .then(response => {
+          setEditClass(response.data);
+        })
+        .catch(e => {
+          showErrorMessage('Error: ' + e.response.data);
+          setTimeout(() => {
+            navigate('/class');
+          }, 3000);
+          console.error(e.response.data);
+        });
+    }
+  }, [classId]);
 
-    //   let returnedUsers = userResponse.data.map(user => {
-    //     return {
-    //       key: user.staffCode,
-    //       staffCode: user.staffCode,
-    //       fullName: user.lastName + ' ' + user.firstName,
-    //       type: user.type,
-    //     };
-    //   });
+  const [touched, setTouched] = useState({
+    className: false,
+    classGrade: false,
+    formTeacherCode: false
+  });
 
-    //   let returnedAssets = assetResponse.data.map(asset => {
-    //     return {
-    //       key: asset.code,
-    //       assetCode: asset.code,
-    //       name: asset.assetName,
-    //       category: asset.categoryName,
-    //     };
-    //   });
-    //   setUserData(returnedUsers);
-    //   setAssetData(returnedAssets);
-    // }
-    // fetchData();
-  }, []);
-
-  const handleUserIconClick = event => {
-    setUserModalVisible(true);
+  const handleInputChange = event => {
+    const { name, value } = event.target;
+    setEditClass({ ...editClass, [name]: value });
+    console.log({ name, value });
   };
 
-  const handleUserOk = event => {
-    formik.setFieldTouched('user', true, true);
-    formik.setFieldValue('user', selectedUserRow.fullName, true);
-    setUserModalVisible(false);
+  const handleBlur = evt => {
+    setTouched({
+      ...touched,
+      [evt.target.name]: true,
+    });
   };
 
-  const handleUserCancel = event => {
-    setUserModalVisible(false);
+  const getDataList = list => {
+    let usersList = [];
+    list.map(e => {
+      usersList.push({
+        userCode: e.userCode,
+        fullName: e.firstName + ' ' + e.lastName,
+        username: e.username,
+        roleName: e.roleName,
+        gender: e.gender,
+      });
+    });
+    setTeacherListData(usersList);
   };
 
-  const handleSearchUserModal = (value, event) => {
-    setUserSearchCondition(value.trim());
+  const showDetailModal = async data => {
+    await ClassService.getValidTeachers().then(response => {
+      getDataList(response.data);
+
+    });
+    setIsDetailModalVisible(true);
   };
 
-  const handleAssetIconClick = event => {
-    setAssetModalVisible(true);
-  };
-  const handleAssetOk = () => {
-    formik.setFieldTouched('teacher', true, true);
-    formik.setFieldValue('teacher', selectedAssetRow.name, true);
-    setAssetModalVisible(false);
-  };
-
-  const handleAssetCancel = event => {
-    setAssetModalVisible(false);
+  const handleCancel = () => {
+    if (isDetailModalVisible) {
+      setIsDetailModalVisible(false);
+      setSelectedUserRow({});
+      return;
+    }
   };
 
-  const handleSearchAssetModal = value => {
-    setAssetSearchCondition(value.trim());
+  const handleOk = () => {
+    setEditClass({ ...editClass, formTeacherCode: selectedUserRow.userCode })
+    setIsDetailModalVisible(false);
+  }
+
+  const editClassSubmit = async e => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+      await axios.put('http://localhost:8080/classes/add-student-excel/' + editClass.id,
+        formData,
+        {
+          headers: {
+            "Content-type": "multipart/form-data",
+          },
+        }).then(response => {
+          showSuccessMessage(`Add student success!`);
+        }).catch(error => {
+          if(error.response.data){
+            showErrorMessage(error.response.data);
+          }
+          else{
+            showErrorMessage(error);
+          }
+        });
+    }
+
+    await instance
+      .put('/classes/add-teacher', editClass, { headers: authHeader() })
+      .then(response => {
+        showSuccessMessage(`Edit class success!`);
+        setTimeout(() => {
+          navigate('/class');
+        }, 2000);
+      })
+      .catch(e => {
+        showErrorMessage('Error: ' + e.response.data);
+        console.error(e);
+      });
   };
 
-  const handleBack = event => {
+  const formValid = true;
+
+  const onCancel = () => {
+    setEditClass(initialSubjectState);
     navigate('/class');
   };
 
-  const handleClickDate = (date, dateString) => {
-    formik.setFieldValue('assignedDate', dateString);
-  };
+  const onFileChange = event => {
+    setSelectedFile(event.target.files[0]);
 
-  const handleUserClose = () => {
-    let input = document.getElementById('userId');
-    input.blur();
-    setUserSearchCondition('');
-  };
-  const handleAssetClose = () => {
-    let input = document.getElementById('assetId');
-    input.blur();
-    setAssetSearchCondition('');
-  };
-
-  const handleSubmit = async assignment => {
-    try {
-      let response = await AssignmentService.createNewAssignment(assignment);
-      showSuccessMessage('Assignemnt created successfully');
-      navigate('/class', {
-        state: { createdAssignment: response.data, prePath: '/class/create' },
-      });
-    } catch (error) {
-      if (error.response.status === 400 || error.response.status === 401) {
-        showErrorMessage('Your session has expired');
-        localStorage.removeItem('token');
-        navigate('/login');
-      }
-    }
-  };
-
-  const handleSubmitClass = async newClass => {
-    try {
-      let response = await AssignmentService.createNewAssignment(newClass);
-      showSuccessMessage('Class created successfully');
-      navigate('/class');
-    } catch (error) {
-      if (error.response.status === 400 || error.response.status === 401) {
-        showErrorMessage('Your session has expired');
-        localStorage.removeItem('token');
-        navigate('/login');
-      }
-    }
   };
 
   return (
-    <>
-      <div className="assignment-page">
-        <p
-          style={{
-            fontSize: '20px',
-            color: 'rgb(171, 42, 22)',
-            fontWeight: '600',
-          }}
-        >
-          Tạo lớp học mới
-        </p>
-        <form className="form-custom" onSubmit={(e) => {e.preventDefault(); formik.handleSubmit();}}>
-        <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Tên lớp học</span>
-              <div className="form-group-custom">
-                <Input
-                  id="nameClass"
-                  name="nameClass"
-                  value={formik.values.nameClass}
-                  type="text"
-                  size="large"
-                  {...formik.getFieldProps('nameClass')}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Khối lớp học</span>
-              <div className="form-group-custom">
-                <Input
-                  id="className"
-                  name="className"
-                  value={formik.values.classGrade}
-                  type="text"
-                  size="large"
-                  {...formik.getFieldProps('classGrade')}
-                />
-              </div>
-            </div>
-          </div>
-          {/* <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Teacher</span>
-              <div className="form-group-custom">
-                <Input
-                  id="userId"
-                  name="user"
-                  value={formik.values.user}
-                  type="text"
-                  size="large"
-                  readOnly
-                  {...formik.getFieldProps('user')}
-                  className={
-                    formik.errors.user && formik.touched.user
-                      ? 'text-input error form-control'
-                      : 'text-input form-control'
-                  }
-                  onClick={handleUserIconClick}
-                />
-                <label className="user-search-icon" htmlFor="userId">
-                  <SearchOutlined />
-                </label>
-              </div>
-            </div>
+    <div className="container mt-5" style={{ marginLeft: '180px', width: '500px' }}>
+      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Edit Class</h1>
+      <Form onSubmit={editClassSubmit} validated={false}>
+        <Form.Group className="mb-3">
+          <Form.Label> Class Name </Form.Label>
+          <Form.Control name="className" value={editClass.className} onChange={handleInputChange} type="text" />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Class Grade</Form.Label>
+          <Form.Control name="classGrade" value={editClass.classGrade} onChange={handleInputChange} type="text" />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Teacher</Form.Label>
+          <Form.Control readOnly name="formTeacherCode" value={editClass.formTeacherCode != null ? editClass.formTeacherCode : ''} type="text" onClick={showDetailModal} />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Student list</Form.Label>
+          <Form.Control readOnly name="studentList" type="file" onChange={onFileChange} />
+        </Form.Group>
 
-            {formik.touched.user && formik.errors.user ? (
-              <div className="warning">{formik.errors.user}</div>
-            ) : null}
-          </div>
-          <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Asset</span>
-              <div className="form-group-custom">
-                <Input
-                  id="assetId"
-                  name="asset"
-                  value={formik.values.asset}
-                  type="text"
-                  size="large"
-                  readOnly
-                  {...formik.getFieldProps('asset')}
-                  className={
-                    formik.errors.asset && formik.touched.asset
-                      ? 'text-input error form-control'
-                      : 'text-input form-control'
-                  }
-                  onClick={handleAssetIconClick}
-                />
-                <label className="user-search-icon" htmlFor="assetId">
-                  <SearchOutlined />
-                </label>
-              </div>
-            </div>
-            {formik.touched.teacher && formik.errors.teacher ? (
-              <div className="warning">{formik.errors.teacher}</div>
-            ) : null}
-          </div> */}
-          <div className="align-button-right">
-            <button
-              // disabled={formik.errors.user || formik.errors.teacher}
-              type="submit"
-              className="btn btn-danger"
-              style={{ marginRight: '30px' }}
-            >
-              Save
-            </button>
-            <button className="btn btn-light btn-light-custom" onClick={handleBack}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+        <Button
+          style={{ marginLeft: '240px' }}
+          disabled={!formValid}
+          variant="danger"
+          type="submit"
+        >
+          Save
+        </Button>
+        <Button
+          style={{ float: 'right', marginRight: '80px' }}
+          variant="light"
+          onClick={onCancel}
+          className="btn btn-outline-secondary"
+          type="button"
+        >
+          Cancel
+        </Button>
+        <DetailModal
+          isDetailModalVisible={isDetailModalVisible}
+          handleCancel={handleCancel}
+          dataList={teacherListData}
+          handleOk={handleOk}
+          setSelectedRow={setSelectedUserRow}
+        />
+      </Form>
+    </div>
   );
-}
+};
 
 export default EditClassPage;

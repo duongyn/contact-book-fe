@@ -6,17 +6,16 @@ import { FilterFilled } from '@ant-design/icons';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
-import AssignService from '../../services/classService';
 import FilterMenu from './FilterMenu';
 import DetailModal from './DetailModal';
 import configTableColumns from './tableColumns';
 import { stateList } from './stateFilterMenuData';
 import './css/AdminAssignList.css';
-import ReturnRequestService from '../../services/returnRequestService';
 import useAuth from '../../hooks/useAuth';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import moment from 'moment';
-import AssignmentService from '../../services/classService';
+import ClassService from '../../services/classService';
+import StudentModal from './StudentModal';
 const { Search } = Input;
 
 /* Change default theme color */
@@ -53,9 +52,7 @@ const AdminAssignList = () => {
 
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [isReturnModalVisible, setIsReturnModalVisible] = useState(false);
   const [deleteModalData, setDeleteModalData] = useState({});
-  const [returnModalData, setReturnModalData] = useState({});
 
   const currentUsername = useAuth().user.sub;
 
@@ -71,6 +68,10 @@ const AdminAssignList = () => {
   const [searchValue, setSearchValue] = useState('');
   const { state } = useLocation();
   let updateList = [];
+
+  const [isStudentModalVisible, setIsStudentModalVisible] = useState(false);
+  const [studentListData, setStudentListData] = useState([]);
+  const [selectedUserRows, setSelectedUserRows] = useState();
 
   const formatState = state => {
     const strArray = state.split('_');
@@ -96,7 +97,7 @@ const AdminAssignList = () => {
   };
 
   const getDefaultList = () => {
-    AssignService.getDefault()
+    ClassService.getDefault()
       .then(response => {
         setDataList(response.data);
       })
@@ -111,7 +112,7 @@ const AdminAssignList = () => {
       assignedDate: assignedDateFilter,
       searchKey: searchText,
     };
-    AssignService.getListBySearchKey(searchDate)
+    ClassService.getListBySearchKey(searchDate)
       .then(response => {
         setDataList(response.data);
       })
@@ -122,43 +123,11 @@ const AdminAssignList = () => {
   };
 
   useEffect(() => {
-    if (state) {
-      updateList = [];
-      if (state.prePath === '/assignment/edit') {
-        updateList.push(state.updatedAssignment);
-        async function getUpdateList() {
-          let response = await AssignService.getDefault();
-          response.data
-            .filter(assign => assign.id !== state.updatedAssignment.id)
-            .map(assign => {
-              updateList.push(assign);
-            });
-          setDataList(updateList);
-        }
-        getUpdateList();
-        navigate('/assignment', { state: {} });
-      }
-      if (state.prePath === '/class/create') {
-        updateList.push(state.createdAssignment);
-        async function getUpdateList() {
-          let response = await AssignService.getDefault();
-          response.data
-            .filter(assign => assign.id !== state.createdAssignment.id)
-            .map(assign => {
-              updateList.push(assign);
-            });
-          setDataList(updateList);
-        }
-        getUpdateList();
-        navigate('/assignment', { state: {} });
-      }
-    } else {
-      getDefaultList();
-    }
+    getDefaultList();
   }, []);
 
   const showDetailModal = data => {
-    AssignService.getByID(data.id).then(response => {
+    ClassService.getByID(data.id).then(response => {
       setDetailModalData(response.data);
     });
     setIsDetailModalVisible(true);
@@ -167,11 +136,6 @@ const AdminAssignList = () => {
   const showDeleteModal = data => {
     setIsDeleteModalVisible(true);
     setDeleteModalData(data);
-  };
-
-  const showReturnModal = data => {
-    setIsReturnModalVisible(true);
-    setReturnModalData(data.id);
   };
 
   const handleCancel = () => {
@@ -183,34 +147,13 @@ const AdminAssignList = () => {
       setIsDeleteModalVisible(false);
       return;
     }
-    if (isReturnModalVisible) {
-      setIsReturnModalVisible(false);
-      return;
-    }
   };
 
-  const handleReturnModalOK = () => {
-    const requestDto = {
-      assignmentId: returnModalData,
-    };
-    ReturnRequestService.createReturnRequest(requestDto)
-      .then(response => {
-        showSuccessMessage('Success create return request!');
-        setIsReturnModalVisible(false);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      })
-      .catch(error => {
-        setIsReturnModalVisible(false);
-        showErrorMessage('Error: ' + error.response.data);
-      });
-  };
 
   const handleDeleteModalOK = () => {
-    AssignmentService.deleteAssignment(deleteModalData.id)
+    ClassService.deleteClass(deleteModalData.id)
       .then(response => {
-        showSuccessMessage('Delete Assignment successfully !');
+        showSuccessMessage('Delete class successfully!');
         setIsDeleteModalVisible(false);
         setTimeout(() => {
           window.location.reload();
@@ -218,7 +161,7 @@ const AdminAssignList = () => {
       })
       .catch(error => {
         setIsDeleteModalVisible(false);
-        showErrorMessage('Error: ' + error.response.data);
+        showErrorMessage(error.response.data);
       });
   };
 
@@ -298,6 +241,53 @@ const AdminAssignList = () => {
     }
   };
 
+  const getDataList = list => {
+    let usersList = [];
+    list.map(e => {
+      usersList.push({
+        userCode: e.userCode,
+        fullName: e.firstName + ' ' + e.lastName,
+        username: e.username,
+        roleName: e.roleName,
+        gender: e.gender,
+        dob: e.dob
+      });
+    });
+    setStudentListData(usersList);
+  };
+
+  const showStudentModal = async data => {
+    await ClassService.getValidStudents().then(response => {
+      getDataList(response.data);
+
+    });
+    setIsStudentModalVisible(true);
+  };
+
+  const handleCancelStudent = () => {
+    if (isStudentModalVisible) {
+      setIsStudentModalVisible(false);
+      setSelectedUserRows([]);
+      return;
+    }
+  };
+
+  const handleOk = () => {
+    setIsStudentModalVisible(false);
+    createStudentList(selectedUserRows);
+  }
+
+  const createStudentList = data => {
+    ClassService.createStudentList(data).then(response => {
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `students.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+    });
+  }
+
   useEffect(() => {
     handleSearchAndFilter();
   }, [stateFilter, assignedDateFilter, searchText]);
@@ -305,7 +295,7 @@ const AdminAssignList = () => {
   const stateFilterMenu = <FilterMenu handleFilter={handleStateFilter} menuList={stateList} />;
 
   return (
-    <div style={{ display: 'block', width: '1300px' }}>
+    <div style={{ display: 'block', width: '1000px', marginLeft: '50px' }}>
       <ConfigProvider renderEmpty={customizeEmpty ? customizeRenderEmpty : undefined}>
         <Row justify="start" align="middle">
           <h2 className="title">Danh sách lớp học</h2>
@@ -336,7 +326,24 @@ const AdminAssignList = () => {
               Create new class
             </button>
           </Col>
+          <Col span={4} push={6}>
+            <button
+              type="button"
+              className="create_assign"
+              style={{ width: '190px' }}
+              onClick={showStudentModal}
+            >
+              Create students list
+            </button>
+          </Col>
         </Row>
+        <StudentModal
+          isDetailModalVisible={isStudentModalVisible}
+          handleCancel={handleCancelStudent}
+          dataList={studentListData}
+          handleOk={handleOk}
+          setSelectedRow={setSelectedUserRows}
+        />
         <Row className="mt-5">
           <Col span={24}>
             <Table
@@ -349,7 +356,6 @@ const AdminAssignList = () => {
               columns={configTableColumns(
                 showDetailModal,
                 showDeleteModal,
-                showReturnModal,
                 navigate
               )}
               dataSource={dataSource}

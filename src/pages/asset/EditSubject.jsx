@@ -3,7 +3,7 @@ import { Button, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SubjectService from '../../services/subjectService';
-import './CreateAsset.css';
+import './CreateSubject.css';
 import useAuth from '../../hooks/useAuth';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import instance from '../../httpClient/axiosInstance';
@@ -33,7 +33,7 @@ const EditSubject = () => {
         .catch(e => {
           showErrorMessage('Error: ' + e.response.data);
           setTimeout(() => {
-            navigate('/user');
+            navigate('/subject');
           }, 3000);
           console.error(e.response.data);
         });

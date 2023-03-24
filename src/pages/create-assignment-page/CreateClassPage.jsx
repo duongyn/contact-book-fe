@@ -188,10 +188,13 @@ function CreateAssignmentPage() {
       showSuccessMessage('Class created successfully');
       navigate('/class');
     } catch (error) {
-      if (error.response.status === 400 || error.response.status === 401) {
+      if (error.response.status === 401) {
         showErrorMessage('Your session has expired');
         localStorage.removeItem('token');
         navigate('/login');
+      }
+      else {
+        showErrorMessage(error.response.data);
       }
     }
   };

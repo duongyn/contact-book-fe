@@ -1,20 +1,9 @@
 import {
-  validateDate,
-  validateJoinedDate,
   validateName,
-  validateCategory,
-  validateSpecification,
 } from './validation/validation';
 import { Button, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-
-import Modal from 'react-bootstrap/Modal';
-import './CreateAsset.css';
-import InputGroup from 'react-bootstrap/InputGroup';
-import axios from 'axios';
 import instance from '../../httpClient/axiosInstance';
 import authHeader from '../../services/AuthHeader';
 import { toast } from 'react-toastify';

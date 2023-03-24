@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthProvider';
 import Layout from './layouts/Layout';
-import CreateAssignmentPage from './pages/create-assignment-page/CreateAssignmentPage';
+import CreateAssignmentPage from './pages/create-assignment-page/CreateClassPage';
 import HomePage from './pages/homepage/HomePage';
 import LoginPage from './pages/login/LoginPage';
 import RequireAuth from './pages/requireAuth/RequireAuth';
@@ -16,8 +16,8 @@ import EditUser from './pages/user/EditUser';
 import reportWebVitals from './reportWebVitals';
 import { ROLE } from './util/enum';
 import UserPage from './pages/userpage/UserPage';
-import AdminAssignList from './pages/assignment/AdminAssignList';
-import CreateAsset from './pages/asset/CreateAsset';
+import AdminAssignList from './pages/assignment/ClassList';
+import CreateSubject from './pages/asset/CreateSubject';
 import EditAssignmentPage from './pages/edit-class-page/EditClassPage';
 
 import ViewReturningRequest from './pages/view_returning_request/ViewReturningRequest';
@@ -94,7 +94,7 @@ root.render(
               path="create"
               element={
                 <Layout title="QL môn học > Tạo mới">
-                  <CreateAsset />
+                  <CreateSubject />
                 </Layout>
               }
             ></Route>
@@ -130,7 +130,7 @@ root.render(
 
             <Route element={<RequireAuth allowedRoles={[ROLE.ADMIN]}></RequireAuth>}>
               <Route
-                path="edit"
+                path="edit/:classid"
                 element={
                   <Layout title="QL lớp học > Chỉnh sửa">
                     <EditAssignmentPage />
