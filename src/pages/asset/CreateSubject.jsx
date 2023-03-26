@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
-const CreateAsset = () => {
+const CreateSubject = () => {
   let navigate = useNavigate();
   const [show, setShow] = useState(false);
 
@@ -145,4 +145,4 @@ const CreateAsset = () => {
   );
 };
 
-export default CreateAsset;
+export default CreateSubject;

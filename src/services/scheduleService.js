@@ -1,0 +1,49 @@
+import instance from '../httpClient/axiosInstance';
+import AuthHeaders from './AuthHeader';
+
+const getAll = () => {
+  return instance.get('/schedules', {
+    headers: AuthHeaders(),
+  });
+}
+
+const getSlots = () => {
+  return instance.get('/schedules/all-slots', {
+    headers: AuthHeaders(),
+  });
+}
+
+const create = data => {
+    return instance.post('/schedules', data , {
+        headers: AuthHeaders()
+    });
+};
+
+const update = data => {
+    return instance.put('/schedules', data, {
+        headers: AuthHeaders()
+    })
+};
+
+const getByID = code => {
+  return instance.get(`/schedules/${code}`, {
+    headers: AuthHeaders(),
+  });
+};
+
+const deleteById = code => {
+  return instance.put(`/schedules/delete/${code}`, {
+    headers: AuthHeaders(),
+  });
+}
+
+const ScheduleService = {
+  getByID,
+  getAll,
+  deleteById,
+  create,
+  update,
+  getSlots
+};
+
+export default ScheduleService;

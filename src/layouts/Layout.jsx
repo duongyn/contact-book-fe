@@ -14,7 +14,7 @@ function Layout({ title, children }) {
     <section>
       <Navbar title={title} username={username} />
       <div className="page-wrapper">
-        <Sidebar renderContent={role === ROLE.ADMIN ? ADMIN_SIDEBAR : (role === ROLE.TEACHER ? TEACHER_SIDEBAR : STUDENT_SIDEBAR)} />
+        <Sidebar renderContent={role === ROLE.ADMIN ? ADMIN_SIDEBAR : ((role === ROLE.TEACHER || role === ROLE.MANAGER) ? TEACHER_SIDEBAR : STUDENT_SIDEBAR)} />
 
         <div
           style={{

@@ -5,23 +5,25 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthProvider';
 import Layout from './layouts/Layout';
-import CreateAssignmentPage from './pages/create-assignment-page/CreateClassPage';
+import CreateClassPage from './pages/create-assignment-page/CreateClassPage';
 import HomePage from './pages/homepage/HomePage';
 import LoginPage from './pages/login/LoginPage';
 import RequireAuth from './pages/requireAuth/RequireAuth';
 import UnauthorizedPage from './pages/unauthorized/UnauthorizedPage';
 import CreateUser from './pages/user/CreateUser';
-import ManageAsset from './pages/manage_subject/ManageSubject';
+import ManageSubject from './pages/manage_subject/ManageSubject';
 import EditUser from './pages/user/EditUser';
 import reportWebVitals from './reportWebVitals';
 import { ROLE } from './util/enum';
 import UserPage from './pages/userpage/UserPage';
 import AdminAssignList from './pages/assignment/ClassList';
 import CreateSubject from './pages/asset/CreateSubject';
-import EditAssignmentPage from './pages/edit-class-page/EditClassPage';
+import EditClassPage from './pages/edit-class-page/EditClassPage';
+import ManageSchedule from './pages/schedules/ManageSchedule';
 
-import ViewReturningRequest from './pages/view_returning_request/ViewReturningRequest';
 import EditSubject from './pages/asset/EditSubject';
+import CreateSchedule from './pages/schedules/CreateSchedule';
+import EditSchedule from './pages/schedules/EditSchedule';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
@@ -86,7 +88,7 @@ root.render(
               index
               element={
                 <Layout title="Quản lý môn học">
-                  <ManageAsset />
+                  <ManageSubject />
                 </Layout>
               }
             ></Route>
@@ -99,11 +101,11 @@ root.render(
               }
             ></Route>
             <Route path="edit/:subjectid"
-            element={
-              <Layout title="QL môn học > Chỉnh sửa">
-                <EditSubject />
-              </Layout>
-            }></Route>
+              element={
+                <Layout title="QL môn học > Chỉnh sửa">
+                  <EditSubject />
+                </Layout>
+              }></Route>
           </Route>
           <Route path="class">
             <Route element={<RequireAuth allowedRoles={[ROLE.ADMIN]}></RequireAuth>}>
@@ -122,7 +124,7 @@ root.render(
                 path="create"
                 element={
                   <Layout title="QL lớp học > Tạo mới">
-                    <CreateAssignmentPage />
+                    <CreateClassPage />
                   </Layout>
                 }
               ></Route>
@@ -133,21 +135,43 @@ root.render(
                 path="edit/:classid"
                 element={
                   <Layout title="QL lớp học > Chỉnh sửa">
-                    <EditAssignmentPage />
+                    <EditClassPage />
                   </Layout>
                 }
               ></Route>
             </Route>
           </Route>
-          <Route path="RequestForReturning">
+          <Route path="schedule">
             <Route
               index
               element={
                 <Layout title="Quản lý thời khóa biểu">
-                  <ViewReturningRequest />
+                  <ManageSchedule />
                 </Layout>
               }
             ></Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.ADMIN, ROLE.MANAGER]}></RequireAuth>}>
+              <Route
+                path="create"
+                element={
+                  <Layout title="QL thời khóa biểu > Tạo mới">
+                    <CreateSchedule />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.ADMIN, ROLE.MANAGER]}></RequireAuth>}>
+              <Route
+                path="edit/:scheduleid"
+                element={
+                  <Layout title="QL thời khóa biểu > Chỉnh sửa">
+                    <EditSchedule />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
           </Route>
         </Route>
         <Route path="/login" element={<LoginPage />} />
