@@ -43,6 +43,12 @@ const DetailModal = detailModalData => {
           <p className="field_value">{detailModalData.className}</p>
         </Space>
       </Row>
+      <Row>
+        <Space size="small">
+          <p className="field_name">Subject Name: </p>{' '}
+          <p className="field_value">{detailModalData.subjectName}</p>
+        </Space>
+      </Row>
     </Modal>
   );
 };

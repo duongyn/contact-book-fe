@@ -13,6 +13,12 @@ const getSlots = () => {
   });
 }
 
+const getSubjectsByClassName = data => {
+  return instance.get(`/schedules/get-subjects/${data}`, {
+    headers: AuthHeaders(),
+  });
+}
+
 const create = data => {
     return instance.post('/schedules', data , {
         headers: AuthHeaders()
@@ -43,7 +49,8 @@ const ScheduleService = {
   deleteById,
   create,
   update,
-  getSlots
+  getSlots,
+  getSubjectsByClassName
 };
 
 export default ScheduleService;

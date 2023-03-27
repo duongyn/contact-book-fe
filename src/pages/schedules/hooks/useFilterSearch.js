@@ -23,10 +23,11 @@ const useFilterSearch = (
 
     if (searchText !== ' ') {
       const filteredEvents = defaultData
-        .filter(({className }) => {
+        .filter(({className, subjectName }) => {
           className = className.toLowerCase();
+          subjectName = subjectName.toLowerCase();
           return (
-            className.includes(searchText.toLowerCase())
+            className.includes(searchText.toLowerCase()) || subjectName.includes(searchText.toLowerCase())
           );
         });
       if (filteredEvents.length == 0) {

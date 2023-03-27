@@ -72,6 +72,19 @@ const configTableColumns = (showDetailModal, showDeleteModal) => {
       },
     },
     {
+      title: 'Subject Name',
+      dataIndex: 'subjectName',
+      sorter: (a, b) => a.subjectName.toLowerCase().localeCompare(b.subjectName.toLowerCase()),
+      sortDirections: ['ascend', 'descend', 'ascend'],
+      onCell: (record, rowIndex) => {
+        return {
+          onClick: event => {
+            showDetailModal(record);
+          },
+        };
+      },
+    },
+    {
       title: '',
       render: record =>
         <Space size="small">

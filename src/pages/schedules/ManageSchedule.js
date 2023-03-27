@@ -56,7 +56,8 @@ const ManageAsset = () => {
     scheduleTime: '',
     scheduleFrom: '',
     scheduleTo: '',
-    className: ''
+    className: '',
+    subjectName: ''
   });
   const [deleteModalData, setDeleteModalData] = useState({});
 
@@ -218,6 +219,7 @@ const ManageAsset = () => {
               scheduleFrom={detailModalData.scheduleFrom}
               scheduleTo={detailModalData.scheduleTo}
               className={detailModalData.className}
+              subjectName={detailModalData.subjectName}
             />
             <Modal
               title="Are you sure ?"
