@@ -6,6 +6,7 @@ import './CreateSchedule.css';
 import useAuth from '../../hooks/useAuth';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import ClassService from '../../services/classService';
+import SubjectService from '../../services/subjectService';
 
 const EditSchedule = () => {
   const currentUser = useAuth().user.sub;
@@ -22,9 +23,10 @@ const EditSchedule = () => {
   const [newSubject, setNewSubject] = useState(initialSubjectState);
   const params = useParams();
   const scheduleid = params.scheduleid;
-  const [slots, setSlots] = useState([]);
 
+  const [slots, setSlots] = useState([]);
   const [classList, setClassList] = useState([]);
+  const [subjectList, setSubjectList] = useState([]);
 
   useEffect(() => {
     if (scheduleid) {
@@ -48,22 +50,46 @@ const EditSchedule = () => {
       setSlots(list);
     }).catch(error => {
       console.error(error.response.data);
-    })
+    });
+
     ClassService.getDefault().then(response => {
       let list = [];
       response.data.forEach(c => {
         list.push(c.className);
       });
-      
+
       setClassList(list);
     }).catch(error => {
       console.error(error.response.data);
-    })
+    });
+
+    SubjectService.getAll().then(response => {
+      let list = [];
+      response.data.forEach(c => {
+        list.push(c.subjectName + ' - grade ' + c.subjectGrade);
+      });
+      setSubjectList(list);
+    }).catch(error => {
+      console.error(error.response.data);
+    });
   }, [scheduleid]);
 
+  useEffect(() => {
+    ScheduleService.getSubjectsByClassName(newSubject.className).then(response => {
+      let list = [];
+      response.data.forEach(c => {
+        list.push(c.subjectName + ' - grade ' + c.subjectGrade);
+      });
+      setSubjectList(list);
+    }).catch(error => {
+      console.error(error.response.data);
+    });
+  }, [newSubject.className]);
+
   const [touched, setTouched] = useState({
-    subjectName: false,
-    subjectGrade: false,
+    scheduleTime: false,
+    className: false,
+    subjectName: false
   });
 
   const handleInputChange = event => {
@@ -81,7 +107,15 @@ const EditSchedule = () => {
 
   const editSubject = e => {
     e.preventDefault();
-    ScheduleService.update(newSubject)
+    const data = {
+      scheduleTime: newSubject.scheduleTime,
+      slotName: newSubject.slotName,
+      className: newSubject.className,
+      subjectName: newSubject.subjectName.replace(/ - grade \d+/, ""),
+      subjectGrade: newSubject.subjectName.replace(/.+ - grade /,"")
+    }
+    
+    ScheduleService.update(data)
       .then(response => {
         showSuccessMessage(`Edit schedule success!`);
         setTimeout(() => {
@@ -165,6 +199,25 @@ const EditSchedule = () => {
             )}
           </Form.Select>
           <Form.Control.Feedback type="invalid">{errorClassName(newSubject.slotName)}</Form.Control.Feedback>
+          <Form.Control.Feedback type="valid"></Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label className="mr-2">Subject</Form.Label>
+          <Form.Select style={{ fontSize: '18px' }}
+            name="subjectName"
+            onChange={handleInputChange}
+            isInvalid={touched.subjectName && Boolean(errorClassName(newSubject.subjectName))}
+            isValid={touched.subjectName && !Boolean(errorClassName(newSubject.subjectName))}
+            onBlur={handleBlur}
+            value={newSubject.subjectName}
+          >
+            <option value=""></option>
+            {subjectList.map(c =>
+              <option key={c} value={c}>{c}</option>
+            )}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">{errorClassName(newSubject.subjectName)}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
         <Button

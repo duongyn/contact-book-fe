@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import ScheduleService from '../../services/scheduleService';
 import ClassService from '../../services/classService';
+import SubjectService from '../../services/subjectService';
 
 const CreateSchedule = () => {
   let navigate = useNavigate();
@@ -21,12 +22,15 @@ const CreateSchedule = () => {
   const [newAsset, setNewAsset] = useState({
     scheduleTime: '',
     slotName: '',
-    className: ''
+    className: '',
+    subjectName: ''
   });
 
   const [slots, setSlots] = useState([]);
 
   const [classList, setClassList] = useState([]);
+
+  const [subjectList, setSubjectList] = useState([]);
 
   const currentUser = useAuth().user.sub;
 
@@ -43,23 +47,46 @@ const CreateSchedule = () => {
       setSlots(list);
     }).catch(error => {
       console.error(error.response.data);
-    })
+    });
     ClassService.getDefault().then(response => {
       let list = [];
       response.data.forEach(c => {
         list.push(c.className);
       });
-      
+
       setClassList(list);
     }).catch(error => {
       console.error(error.response.data);
-    })
+    });
+
+    SubjectService.getAll().then(response => {
+      let list = [];
+      response.data.forEach(c => {
+        list.push(c.subjectName + ' - grade ' + c.subjectGrade);
+      });
+      setSubjectList(list);
+    }).catch(error => {
+      console.error(error.response.data);
+    });
 
   }, []);
 
+  useEffect(() => {
+    ScheduleService.getSubjectsByClassName(newAsset.className).then(response => {
+      let list = [];
+      response.data.forEach(c => {
+        list.push(c.subjectName + ' - grade ' + c.subjectGrade);
+      });
+      setSubjectList(list);
+    }).catch(error => {
+      console.error(error.response.data);
+    });
+  }, [newAsset.className]);
+
   const [touched, setTouched] = useState({
     scheduleTime: false,
-    className: false
+    className: false,
+    subjectName: false
   });
 
   const handleBlur = evt => {
@@ -79,8 +106,14 @@ const CreateSchedule = () => {
 
   const handleSubmit = evt => {
     evt.preventDefault();
-    console.log(newAsset);
-    ScheduleService.create(newAsset)
+    const data = {
+      scheduleTime: newAsset.scheduleTime,
+      slotName: newAsset.slotName,
+      className: newAsset.className,
+      subjectName: newAsset.subjectName.replace(/ - grade \d+/, ""),
+      subjectGrade: newAsset.subjectName.replace(/.+ - grade /,"")
+    }
+    ScheduleService.create(data)
       .then(response => {
         toast.success(`Create schedule success!`, {
           position: 'top-right',
@@ -94,7 +127,6 @@ const CreateSchedule = () => {
         setTimeout(() => {
           navigate('/schedule');
         }, 2000);
-        //console.log("response = ", response);
       })
       .catch(e => {
         toast.error(e.response.data, {
@@ -143,7 +175,7 @@ const CreateSchedule = () => {
 
         <Form.Group className="mb-3">
           <Form.Label className="mr-2">Class</Form.Label>
-          <Form.Select style={{fontSize: '18px'}}
+          <Form.Select style={{ fontSize: '18px' }}
             name="className"
             onChange={handleChange}
             isInvalid={touched.className && Boolean(errorClassName(newAsset.className))}
@@ -151,7 +183,7 @@ const CreateSchedule = () => {
             onBlur={handleBlur}
           >
             <option value=""></option>
-            {classList.map(c => 
+            {classList.map(c =>
               <option key={c} value={c}>{c}</option>
             )}
           </Form.Select>
@@ -161,7 +193,7 @@ const CreateSchedule = () => {
 
         <Form.Group className="mb-3">
           <Form.Label className="mr-2">Slot</Form.Label>
-          <Form.Select style={{fontSize: '18px'}}
+          <Form.Select style={{ fontSize: '18px' }}
             name="slotName"
             onChange={handleChange}
             isInvalid={touched.slotName && Boolean(errorClassName(newAsset.slotName))}
@@ -169,11 +201,29 @@ const CreateSchedule = () => {
             onBlur={handleBlur}
           >
             <option value=""></option>
-            {slots.map(c => 
+            {slots.map(c =>
               <option key={c} value={c}>{c}</option>
             )}
           </Form.Select>
           <Form.Control.Feedback type="invalid">{errorClassName(newAsset.slotName)}</Form.Control.Feedback>
+          <Form.Control.Feedback type="valid"></Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label className="mr-2">Subject</Form.Label>
+          <Form.Select style={{ fontSize: '18px' }}
+            name="subjectName"
+            onChange={handleChange}
+            isInvalid={touched.subjectName && Boolean(errorClassName(newAsset.subjectName))}
+            isValid={touched.subjectName && !Boolean(errorClassName(newAsset.subjectName))}
+            onBlur={handleBlur}
+          >
+            <option value=""></option>
+            {subjectList.map(c =>
+              <option key={c} value={c}>{c}</option>
+            )}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">{errorClassName(newAsset.subjectName)}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
 
