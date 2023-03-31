@@ -95,18 +95,18 @@ const EditUser = () => {
 
   return (
     <div className="container mt-5" style={{ marginLeft: '180px', width: '500px' }}>
-      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Edit User</h1>
+      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Chỉnh sửa người dùng</h1>
       <Form onSubmit={editUser} validated={false}>
         <Form.Group className="mb-3">
-          <Form.Label> First Name </Form.Label>
+          <Form.Label> Tên </Form.Label>
           <Form.Control disabled name="firstName" value={newUser.firstName} type="text" />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Last Name</Form.Label>
+          <Form.Label>Họ</Form.Label>
           <Form.Control disabled name="lastName" value={newUser.lastName} type="text" />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Date Of Birth</Form.Label>
+          <Form.Label>Ngày sinh</Form.Label>
           <Form.Control
             name="dob"
             value={newUser.dob}
@@ -122,7 +122,7 @@ const EditUser = () => {
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Gender</Form.Label>
+          <Form.Label>Giới tính</Form.Label>
           {(newUser.gender == 'Male' && (
             <Form.Check className="ml-5" type="radio" id="inline-radio-1" inline>
               <Form.Check.Input
@@ -132,7 +132,7 @@ const EditUser = () => {
                 value="Male"
                 onClick={handleInputChange}
               />
-              <Form.Check.Label style={{ paddingTop: 0 }}>Male</Form.Check.Label>
+              <Form.Check.Label style={{ paddingTop: 0 }}>Nam</Form.Check.Label>
             </Form.Check>
           )) || (
             <Form.Check className="ml-5" type="radio" id="inline-radio-1" inline>
@@ -142,7 +142,7 @@ const EditUser = () => {
                 value="Male"
                 onClick={handleInputChange}
               />
-              <Form.Check.Label style={{ paddingTop: 0 }}>Male</Form.Check.Label>
+              <Form.Check.Label style={{ paddingTop: 0 }}>Nam</Form.Check.Label>
             </Form.Check>
           )}
 
@@ -155,7 +155,7 @@ const EditUser = () => {
                 value="Female"
                 onClick={handleInputChange}
               />
-              <Form.Check.Label style={{ paddingTop: 0 }}>Female</Form.Check.Label>
+              <Form.Check.Label style={{ paddingTop: 0 }}>Nữ</Form.Check.Label>
             </Form.Check>
           )) || (
             <Form.Check className="ml-5" type="radio" id="inline-radio-2" inline>
@@ -165,12 +165,12 @@ const EditUser = () => {
                 value="Female"
                 onClick={handleInputChange}
               />
-              <Form.Check.Label style={{ paddingTop: 0 }}>Female</Form.Check.Label>
+              <Form.Check.Label style={{ paddingTop: 0 }}>Nữ</Form.Check.Label>
             </Form.Check>
           )}
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label className="mr-5">Type</Form.Label>
+          <Form.Label className="mr-5">Vai trò</Form.Label>
           <Form.Select
             size="lg"
             aria-label=""
@@ -211,7 +211,7 @@ const EditUser = () => {
           variant="danger"
           type="submit"
         >
-          Save
+          Lưu
         </Button>
         <Button
           style={{ float: 'right', marginRight: '80px' }}
@@ -220,7 +220,7 @@ const EditUser = () => {
           className="btn btn-outline-secondary"
           type="button"
         >
-          Cancel
+          Hủy bỏ
         </Button>
       </Form>
     </div>
