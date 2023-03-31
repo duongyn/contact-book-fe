@@ -306,10 +306,10 @@ function CreateAssignmentPage() {
               className="btn btn-danger"
               style={{ marginRight: '30px' }}
             >
-              Save
+              Lưu
             </button>
             <button className="btn btn-light btn-light-custom" onClick={handleBack}>
-              Cancel
+              Hủy bỏ
             </button>
           </div>
         </form>

@@ -16,6 +16,7 @@ import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import moment from 'moment';
 import ClassService from '../../services/classService';
 import StudentModal from './StudentModal';
+import UserService from '../../services/userService';
 const { Search } = Input;
 
 /* Change default theme color */
@@ -82,6 +83,26 @@ const AdminAssignList = () => {
     return newState.trim();
   };
 
+  const [listUser, setListUser] = useState([]);
+  const [listClass, setListClass] = useState([]);
+
+  const getAllUsers = async () => {
+    const listUser = await UserService.getAllUsers();
+    setListUser(listUser.data);
+    const listClass = await ClassService.getDefault();
+    setListClass(listClass.data);
+  }
+
+  const getUserFullName = (code) => {
+    let fullName = '';
+    listUser.map(u => {
+      if(u.userCode == code){
+        fullName = u.firstName + ' ' + u.lastName;
+      }
+    });
+    return fullName;
+  }
+
   const setDataList = list => {
     let dataList = [];
     list.map(e => {
@@ -89,21 +110,15 @@ const AdminAssignList = () => {
         id: e.id,
         className: e.className,
         classGrade: e.classGrade,
-        formTeacherCode: e.formTeacherCode,
+        formTeacherCode: getUserFullName(e.formTeacherCode),
         listStudentCode: e.listStudentCode,
       });
     });
     setDataSource(dataList);
   };
 
-  const getDefaultList = () => {
-    ClassService.getDefault()
-      .then(response => {
-        setDataList(response.data);
-      })
-      .catch(() => {
-        setDataSource([]);
-      });
+  const getDefaultList = async () => {
+    
   };
 
   const getListByFilterAndSearch = (stateFilter, assignedDateFilter, searchText) => {
@@ -123,12 +138,23 @@ const AdminAssignList = () => {
   };
 
   useEffect(() => {
-    getDefaultList();
+    getAllUsers();
   }, []);
+
+  useEffect(() => {
+    setDataList(listClass);
+  }, [listClass]);
 
   const showDetailModal = data => {
     ClassService.getByID(data.id).then(response => {
-      setDetailModalData(response.data);
+      let data = {
+        id: response.data.id,
+        className: response.data.className,
+        classGrade: response.data.classGrade,
+        formTeacherCode: getUserFullName(response.data.formTeacherCode),
+        listStudentCode: response.data.listStudentCode,
+      }
+      setDetailModalData(data);
     });
     setIsDetailModalVisible(true);
   };
@@ -323,7 +349,7 @@ const AdminAssignList = () => {
                 navigate('/class/create');
               }}
             >
-              Create new class
+              Tạo mới lớp học
             </button>
           </Col>
           <Col span={4} push={6}>
@@ -333,7 +359,7 @@ const AdminAssignList = () => {
               style={{ width: '190px' }}
               onClick={showStudentModal}
             >
-              Create students list
+              Tạo DS học sinh
             </button>
           </Col>
         </Row>
@@ -370,14 +396,14 @@ const AdminAssignList = () => {
               listStudentCode={detailModalData.listStudentCode}
             />
             <Modal
-              title="Are you sure ?"
+              title="Bạn có chắc chắn không ?"
               visible={isDeleteModalVisible}
               onCancel={handleCancel}
               onOk={handleDeleteModalOK}
               closable={false}
               width={420}
             >
-              <p>Do you want to delete this class {deleteModalData.id}</p>
+              <p>Bạn có muốn xóa lớp học {deleteModalData.id} không</p>
             </Modal>
           </Col>
         </Row>

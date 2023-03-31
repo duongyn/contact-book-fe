@@ -15,31 +15,31 @@ const DetailModal = detailModalData => {
     >
       <Row>
         <Space size="small">
-          <p className="field_name">Class Id: </p>{' '}
+          <p className="field_name">ID lớp: </p>{' '}
           <p className="field_value">{detailModalData.id}</p>
         </Space>
       </Row>
       <Row>
         <Space size="small">
-          <p className="field_name">Class Name: </p>{' '}
+          <p className="field_name">Tên lớp: </p>{' '}
           <p className="field_value">{detailModalData.className}</p>
         </Space>
       </Row>
       <Row>
         <Space size="small">
-          <p className="field_name">Grade: </p>{' '}
+          <p className="field_name">Khối: </p>{' '}
           <p className="field_value">{detailModalData.classGrade}</p>
         </Space>
       </Row>
       <Row>
         <Space size="small">
-          <p className="field_name">Teacher: </p>{' '}
+          <p className="field_name">Giáo Viên: </p>{' '}
           <p className="field_value">{detailModalData.formTeacherCode}</p>
         </Space>
       </Row>
       <Row>
         <Space size="small">
-          <p className="field_name">Student: </p>{' '}
+          <p className="field_name">DS học sinh: </p>{' '}
           <div className="field_value">{detailModalData.listStudentCode.map((el, index) => 
             <div key={index}>{el} </div>
           )}</div>

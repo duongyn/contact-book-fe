@@ -158,22 +158,22 @@ const EditClassPage = () => {
 
   return (
     <div className="container mt-5" style={{ marginLeft: '180px', width: '500px' }}>
-      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Edit Class</h1>
+      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Chỉnh sửa lớp học</h1>
       <Form onSubmit={editClassSubmit} validated={false}>
         <Form.Group className="mb-3">
-          <Form.Label> Class Name </Form.Label>
+          <Form.Label> Tên lớp </Form.Label>
           <Form.Control name="className" value={editClass.className} onChange={handleInputChange} type="text" />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Class Grade</Form.Label>
+          <Form.Label>Khối</Form.Label>
           <Form.Control name="classGrade" value={editClass.classGrade} onChange={handleInputChange} type="text" />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Teacher</Form.Label>
+          <Form.Label>Giáo viên</Form.Label>
           <Form.Control readOnly name="formTeacherCode" value={editClass.formTeacherCode != null ? editClass.formTeacherCode : ''} type="text" onClick={showDetailModal} />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Student list</Form.Label>
+          <Form.Label>DS học sinh</Form.Label>
           <Form.Control readOnly name="studentList" type="file" onChange={onFileChange} />
         </Form.Group>
 
@@ -183,7 +183,7 @@ const EditClassPage = () => {
           variant="danger"
           type="submit"
         >
-          Save
+          Lưu
         </Button>
         <Button
           style={{ float: 'right', marginRight: '80px' }}
@@ -192,7 +192,7 @@ const EditClassPage = () => {
           className="btn btn-outline-secondary"
           type="button"
         >
-          Cancel
+          Hủy bỏ
         </Button>
         <DetailModal
           isDetailModalVisible={isDetailModalVisible}

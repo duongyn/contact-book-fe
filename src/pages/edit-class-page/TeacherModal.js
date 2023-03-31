@@ -7,7 +7,7 @@ const TeacherModal = teacherListData => {
 
     const userColumns = [
         {
-            title: 'User Code',
+            title: 'Code',
             dataIndex: 'userCode',
             sorter: {
                 compare: (a, b) => {
@@ -18,7 +18,7 @@ const TeacherModal = teacherListData => {
             },
         },
         {
-            title: 'Full Name',
+            title: 'Họ tên',
             dataIndex: 'fullName',
             sorter: {
                 compare: (a, b) => {
@@ -27,7 +27,7 @@ const TeacherModal = teacherListData => {
             },
         },
         {
-            title: 'Role',
+            title: 'Vai trò',
             dataIndex: 'roleName',
             sorter: {
                 compare: (a, b) => {
@@ -46,7 +46,7 @@ const TeacherModal = teacherListData => {
 
     return (
         <Modal
-            title="List of available teachers"
+            title="DS giáo viên"
             width={575}
             onOk={teacherListData.handleOk}
             visible={teacherListData.isDetailModalVisible}

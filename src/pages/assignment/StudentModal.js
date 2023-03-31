@@ -6,7 +6,7 @@ const StudentModal = studentListData => {
 
     const userColumns = [
         {
-            title: 'User Code',
+            title: 'Code',
             dataIndex: 'userCode',
             sorter: {
                 compare: (a, b) => {
@@ -17,7 +17,7 @@ const StudentModal = studentListData => {
             },
         },
         {
-            title: 'Full Name',
+            title: 'Họ Tên',
             dataIndex: 'fullName',
             sorter: {
                 compare: (a, b) => {
@@ -26,7 +26,7 @@ const StudentModal = studentListData => {
             },
         },
         {
-            title: 'Date of birth',
+            title: 'Ngày sinh',
             dataIndex: 'dob',
             sorter: {
                 compare: (a, b) => {
@@ -35,7 +35,7 @@ const StudentModal = studentListData => {
             },
         },
         {
-            title: 'Role',
+            title: 'Vai trò',
             dataIndex: 'roleName',
             sorter: {
                 compare: (a, b) => {
@@ -55,7 +55,7 @@ const StudentModal = studentListData => {
 
     return (
         <Modal
-            title="List of available students"
+            title="Danh sách học sinh thích hợp"
             width={575}
             onOk={studentListData.handleOk}
             visible={studentListData.isDetailModalVisible}

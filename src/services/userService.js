@@ -13,6 +13,10 @@ const getByUsername = username => {
   return instance.get(END_POINT.listUsers + `/get/${username}`, { headers: authHeader() });
 };
 
+const getByCode = code => {
+  return instance.get(END_POINT.listUsers + `/${code}`, { headers: authHeader() });
+};
+
 const getAllUsers = () => {
   return instance.get(END_POINT.listUsers, { headers: authHeader() });
 }
@@ -36,6 +40,8 @@ const UserService = {
   getUsersInAdminLocation,
   getListWithCreatedUser,
   getListWithEditUser,
+  getByCode,
+  getAllUsers
 };
 
 export default UserService;
