@@ -107,7 +107,7 @@ const CreateUser = () => {
 
   return (
     <div className="container mt-5" style={{ marginLeft: '180px', width: '500px' }}>
-      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Create New User</h1>
+      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Tạo người dùng</h1>
       <Form onSubmit={createUser} validated={false}>
         <Form.Group className="mb-3">
           <Form.Label> Tên: </Form.Label>
