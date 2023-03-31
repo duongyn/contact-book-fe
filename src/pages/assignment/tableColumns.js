@@ -38,7 +38,7 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
       },
     },
     {
-      title: 'Class Name',
+      title: 'Tên lớp',
       dataIndex: 'className',
       width: 300,
       sorter: {
@@ -64,7 +64,7 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
       },
     },
     {
-      title: <div style={{ padding: '0px 0px 0px 0px' }}>Class Grade</div>,
+      title: <div style={{ padding: '0px 0px 0px 0px' }}>Khối</div>,
       dataIndex: 'classGrade',
       width: 200,
       sorter: {
@@ -90,7 +90,7 @@ const configTableColumns = (showDetailModal, showDeleteModal, showReturnModal, n
       },
     },
     {
-      title: 'Teacher Name',
+      title: 'Tên giáo viên',
       dataIndex: 'formTeacherCode',
       width: 300,
       sorter: {

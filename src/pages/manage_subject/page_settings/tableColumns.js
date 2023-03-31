@@ -8,7 +8,7 @@ const navigate = useNavigate;
 const configTableColumns = (showDetailModal, showDeleteModal) => {
   const tableColumns = [
     {
-      title: 'Subject Id',
+      title: 'ID',
       dataIndex: 'subjectId',
       defaultSortOrder: 'ascend',
       sortDirections: ['ascend', 'descend', 'ascend'],
@@ -21,7 +21,7 @@ const configTableColumns = (showDetailModal, showDeleteModal) => {
       },
     },
     {
-      title: 'Subject Name',
+      title: 'Tên môn học',
       dataIndex: 'subjectName',
       sorter: (a, b) => a.subjectName.toLowerCase().localeCompare(b.subjectName.toLowerCase()),
       sortDirections: ['ascend', 'descend', 'ascend'],
@@ -34,7 +34,7 @@ const configTableColumns = (showDetailModal, showDeleteModal) => {
       },
     },
     {
-      title: 'Subject Grade',
+      title: 'Khối',
       dataIndex: 'subjectGrade',
       sorter: (a, b) => a.subjectGrade.toLowerCase().localeCompare(b.subjectGrade.toLowerCase()),
       sortDirections: ['ascend', 'descend', 'ascend'],

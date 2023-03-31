@@ -92,11 +92,11 @@ const CreateSubject = () => {
 
   return (
     <div className="container mt-5">
-      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Create New Subject</h1>
+      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Tạo mới môn học</h1>
       <Form onSubmit={handleSubmit} validated={false}>
         <Form.Group className="row mb-3">
-          <Form.Label className="col-sm-2 col-form-label"> Name </Form.Label>
-          <div className="col-sm-10">
+          <Form.Label className="col-sm-4 col-form-label"> Tên môn học </Form.Label>
+          <div className="col-sm-8">
             <Form.Control
               required
               name="subjectName"
@@ -114,8 +114,8 @@ const CreateSubject = () => {
         </Form.Group>
 
         <Form.Group className="row mb-3">
-          <Form.Label className="col-sm-2 col-form-label"> Grade </Form.Label>
-          <div className="col-sm-10">
+          <Form.Label className="col-sm-4 col-form-label"> Khối </Form.Label>
+          <div className="col-sm-8">
             <Form.Control
               required
               name="subjectGrade"
@@ -134,10 +134,10 @@ const CreateSubject = () => {
 
         <Form.Group className="d-flex flex-row-reverse">
           <Button variant="light" className="d-flex mx-2 btn btn-outline-secondary" type="button" onClick={handleClose}>
-            Cancel
+            Hủy bỏ
           </Button>
           <Button disabled={!formValid} variant="danger" type="submit">
-            Save
+            Tạo
           </Button>
         </Form.Group>
       </Form>

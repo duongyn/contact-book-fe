@@ -83,14 +83,14 @@ const EditSubject = () => {
 
   return (
     <div className="container mt-5" style={{ marginLeft: '180px', width: '500px' }}>
-      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Edit Subject</h1>
+      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Chỉnh sửa môn học</h1>
       <Form onSubmit={editSubject} validated={false}>
         <Form.Group className="mb-3">
-          <Form.Label> Subject Name </Form.Label>
+          <Form.Label> Tên môn học </Form.Label>
           <Form.Control name="subjectName" value={newSubject.subjectName} onChange={handleInputChange} type="text" />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Subject Grade</Form.Label>
+          <Form.Label>Khối</Form.Label>
           <Form.Control name="subjectGrade" value={newSubject.subjectGrade} onChange={handleInputChange} type="text" />
         </Form.Group>
         <Button
@@ -99,7 +99,7 @@ const EditSubject = () => {
           variant="danger"
           type="submit"
         >
-          Save
+          Lưu
         </Button>
         <Button
           style={{ float: 'right', marginRight: '80px' }}
@@ -108,7 +108,7 @@ const EditSubject = () => {
           className="btn btn-outline-secondary"
           type="button"
         >
-          Cancel
+          Hủy bỏ
         </Button>
       </Form>
     </div>

@@ -15,19 +15,19 @@ const DetailModal = detailModalData => {
     >
       <Row>
         <Space size="small">
-          <p className="field_name">Subject Id: </p>{' '}
+          <p className="field_name">ID: </p>{' '}
           <p className="field_value">{detailModalData.subjectId}</p>
         </Space>
       </Row>
       <Row>
         <Space size="small">
-          <p className="field_name">Subject Name: </p>{' '}
+          <p className="field_name">Tên môn học: </p>{' '}
           <p className="field_value">{detailModalData.subjectName}</p>
         </Space>
       </Row>
       <Row>
         <Space size="small">
-          <p className="field_name">Grade: </p>{' '}
+          <p className="field_name">Khối: </p>{' '}
           <p className="field_value">{detailModalData.subjectGrade}</p>
         </Space>
       </Row>

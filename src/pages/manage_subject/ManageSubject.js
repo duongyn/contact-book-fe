@@ -166,7 +166,7 @@ const ManageSubject = () => {
     <div className="asset__list" style={{ display: 'block', width: '1000px' }}>
       <ConfigProvider renderEmpty={customizeEmpty ? customizeRenderEmpty : undefined}>
         <Row justify="start" align="middle">
-          <h2 className="title">Subject List</h2>
+          <h2 className="title">Danh sách môn học</h2>
         </Row>
         <Row style={{ marginBottom: '50px' }} className="utility_bar">
           <Col span={8} push={5}>
@@ -192,7 +192,7 @@ const ManageSubject = () => {
                 navigate('/subject/create');
               }}
             >
-              Create Subject
+              Tạo môn học
             </button>
           </Col>
         </Row>
@@ -216,7 +216,7 @@ const ManageSubject = () => {
               subjectGrade={detailModalData.subjectGrade}
             />
             <Modal
-              title="Are you sure ?"
+              title="Xóa môn học ?"
               visible={isDeleteModalVisible}
               onCancel={handleCancel}
               onOk={handleDeleteModalOK}
@@ -224,7 +224,7 @@ const ManageSubject = () => {
               closable={false}
               width={420}
             >
-              <p>Do you want to delete this subject {deleteModalData.subjectName} {deleteModalData.subjectGrade}</p>
+              <p>Bạn có muốn xóa môn học {deleteModalData.subjectName} {deleteModalData.subjectGrade} không</p>
             </Modal>
           </Col>
         </Row>
