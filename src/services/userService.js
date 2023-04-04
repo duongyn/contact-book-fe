@@ -21,6 +21,10 @@ const getAllUsers = () => {
   return instance.get(END_POINT.listUsers, { headers: authHeader() });
 }
 
+const getAllUsersByClass = className => {
+  return instance.get(END_POINT.listUsers + `/by-class/${className}`, { headers: authHeader() });
+}
+
 const getUsersInAdminLocation = adminCode => {
   return instance.get(END_POINT.listUsers + '/get/' + adminCode, { headers: authHeader() });
 };
@@ -41,7 +45,8 @@ const UserService = {
   getListWithCreatedUser,
   getListWithEditUser,
   getByCode,
-  getAllUsers
+  getAllUsers,
+  getAllUsersByClass
 };
 
 export default UserService;

@@ -1,0 +1,31 @@
+.dropdown {
+  width: 100%;
+}
+
+.form-check-input:checked {
+  background-color: red;
+  border-color: red;
+}
+
+.dropdown-toggle::after {
+  margin-left: 0 !important;
+}
+
+.col-sm-10 .dropdown-toggle::after {
+  margin-left: 90% !important;
+}
+
+/* #input-group-dropdown-3 {
+  width: 920px !important;
+} */
+
+.dropdown-menu {
+  width: 920px !important;
+}
+
+.category {
+  width: 100 !important;
+}
+.col-sm-10 #input-group-dropdown-3{
+ width: 150%;
+}

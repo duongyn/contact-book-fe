@@ -7,6 +7,12 @@ const getAll = () => {
   });
 }
 
+const getByTeaccher = code => {
+  return instance.get(`/schedules/teacher/${code}`, {
+    headers: AuthHeaders(),
+  });
+}
+
 const getSlots = () => {
   return instance.get('/schedules/all-slots', {
     headers: AuthHeaders(),
@@ -50,7 +56,8 @@ const ScheduleService = {
   create,
   update,
   getSlots,
-  getSubjectsByClassName
+  getSubjectsByClassName,
+  getByTeaccher
 };
 
 export default ScheduleService;
