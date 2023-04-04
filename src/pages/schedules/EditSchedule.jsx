@@ -17,6 +17,8 @@ const EditSchedule = () => {
     slotName: '',
     className: '',
     updatedBy: currentUser,
+    subjectGrade: '',
+    subjectName: ''
   };
 
   let navigate = useNavigate();
@@ -32,7 +34,15 @@ const EditSchedule = () => {
     if (scheduleid) {
       ScheduleService.getByID(scheduleid)
         .then(response => {
-          setNewSubject(response.data);
+          let data = {
+            scheduleId: response.data.scheduleId,
+            scheduleTime: response.data.scheduleTime,
+            slotName: response.data.slotName,
+            className: response.data.className,
+            updatedBy: currentUser,
+            subjectName: response.data.subjectName + ' - grade '+response.data.subjectGrade,
+          }
+          setNewSubject(data);
         })
         .catch(e => {
           showErrorMessage('Error: ' + e.response.data);
@@ -112,9 +122,9 @@ const EditSchedule = () => {
       slotName: newSubject.slotName,
       className: newSubject.className,
       subjectName: newSubject.subjectName.replace(/ - grade \d+/, ""),
-      subjectGrade: newSubject.subjectName.replace(/.+ - grade /,"")
+      subjectGrade: newSubject.subjectName.replace(/.+ - grade /, "")
     }
-    
+
     ScheduleService.update(data)
       .then(response => {
         showSuccessMessage(`Edit schedule success!`);

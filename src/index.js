@@ -20,10 +20,12 @@ import AdminAssignList from './pages/assignment/ClassList';
 import CreateSubject from './pages/asset/CreateSubject';
 import EditClassPage from './pages/edit-class-page/EditClassPage';
 import ManageSchedule from './pages/schedules/ManageSchedule';
+import ManageAttend from './pages/attendace/ManageAttendance';
 
 import EditSubject from './pages/asset/EditSubject';
 import CreateSchedule from './pages/schedules/CreateSchedule';
 import EditSchedule from './pages/schedules/EditSchedule';
+import CheckAttendance from './pages/attendace/CheckAttendance';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
@@ -55,7 +57,7 @@ root.render(
           </Route>
 
           <Route path="user">
-            <Route element={<RequireAuth allowedRoles={[ROLE.ADMIN, ROLE.STUDENT]}></RequireAuth>}>
+            <Route element={<RequireAuth allowedRoles={[ROLE.ADMIN]}></RequireAuth>}>
               <Route
                 index
                 element={
@@ -168,6 +170,39 @@ root.render(
                 element={
                   <Layout title="QL thời khóa biểu > Chỉnh sửa">
                     <EditSchedule />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
+          </Route>
+          
+          <Route path="attendance">
+            <Route
+              index
+              element={
+                <Layout title="Quản lý điểm danh">
+                  <ManageAttend />
+                </Layout>
+              }
+            ></Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
+              <Route
+                path="create"
+                element={
+                  <Layout title="QL điểm danh > Tạo mới">
+                    <CreateSchedule />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
+              <Route
+                path="check/:scheduleid"
+                element={
+                  <Layout title="QL điểm danh > điểm danh">
+                    <CheckAttendance />
                   </Layout>
                 }
               ></Route>
