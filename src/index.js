@@ -26,6 +26,11 @@ import EditSubject from './pages/asset/EditSubject';
 import CreateSchedule from './pages/schedules/CreateSchedule';
 import EditSchedule from './pages/schedules/EditSchedule';
 import CheckAttendance from './pages/attendace/CheckAttendance';
+import ManageMark from './pages/mark/ManageMark';
+import ClassStudentsList from './pages/mark/ClassStudentsList'
+import StudentMark from './pages/mark/StudentMarks';
+import CreateMark from './pages/mark/CreateMark';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
@@ -202,6 +207,61 @@ root.render(
                 path="check/:scheduleid"
                 element={
                   <Layout title="QL điểm danh > điểm danh">
+                    <CheckAttendance />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
+          </Route>
+
+          <Route path="mark">
+            <Route
+              index
+              element={
+                <Layout title="Quản lý điểm HS">
+                  <ManageMark />
+                </Layout>
+              }
+            ></Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
+              <Route
+                path="my-class/:id"
+                element={
+                  <Layout title="QL điểm HS > Tạo mới">
+                    <ClassStudentsList />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
+              <Route
+                path="my-class/:id/:code"
+                element={
+                  <Layout title="QL điểm HS > Điểm số">
+                    <StudentMark />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
+              <Route
+                path="my-class/:id/:code/create"
+                element={
+                  <Layout title="QL điểm HS > Tạo điểm">
+                    <CreateMark />
+                  </Layout>
+                }
+              ></Route>
+            </Route>
+
+            <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
+              <Route
+                path="my-class/edit/:markid"
+                element={
+                  <Layout title="QL điểm HS > chỉnh sửa">
                     <CheckAttendance />
                   </Layout>
                 }

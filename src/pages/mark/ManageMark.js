@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
-import './ManageAttendance.css';
+import './ManageMark.css';
 import { Table, Modal, Input, Empty } from 'antd';
 import { Row, Col } from 'antd/lib/grid';
 import 'antd/dist/antd.variable.min.css';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
-import ScheduleService from '../../services/scheduleService';
 import configTableColumns from './page_settings/tableColumns';
-import DetailModal from './components/DetailModal';
 import useFilterSearch from './hooks/useFilterSearch';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import useAuth from '../../hooks/useAuth';
+import UserService from '../../services/userService';
+import ClassService from '../../services/classService';
+
 
 const { Search } = Input;
 
@@ -34,7 +35,7 @@ const itemRender = (_, type, originalElement) => {
   return originalElement;
 };
 
-const ManageAttend = () => {
+const ManageMark = () => {
   const navigate = useNavigate();
 
   const [dataSource, setDataSource] = useState([]);
@@ -44,9 +45,7 @@ const ManageAttend = () => {
   const [customizeEmpty, setCustomizeEmpty] = useState(false);
 
   const [searchText, setSearchText] = useState(' ');
-
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  
   const [keyValid, setKeyValid] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [searchValue, setSearchValue] = useState('');
@@ -54,40 +53,55 @@ const ManageAttend = () => {
   const currentUser = useAuth().user.userCode;
 
   const [detailModalData, setDetailModalData] = useState({
-    scheduleId: 0,
-    scheduleTime: '',
-    scheduleFrom: '',
-    scheduleTo: '',
-    className: '',
-    subjectName: ''
+    id: 0,
+    className: ' ',
+    classGrade: ' ',
+    formTeacherCode: ''
   });
-  const [deleteModalData, setDeleteModalData] = useState({});
+
+  const [listUser, setListUser] = useState([]);
+  const [listClass, setListClass] = useState([]);
+
+  const getAllUsers = async () => {
+    const listUser = await UserService.getAllUsers();
+    setListUser(listUser.data);
+    const listClass = await ClassService.getDefault();
+    setListClass(listClass.data);
+  }
+
+  const getUserFullName = (code) => {
+    let fullName = '';
+    listUser.map(u => {
+      if (u.userCode == code) {
+        fullName = u.firstName + ' ' + u.lastName;
+      }
+    });
+    return fullName;
+  }
+
+  const setDataList = list => {
+    let dataList = [];
+    list.map(e => {
+      if (e.formTeacherCode == currentUser) {
+        dataList.push({
+          id: e.id,
+          className: e.className,
+          classGrade: e.classGrade,
+          formTeacherCode: getUserFullName(e.formTeacherCode),
+          listStudentCode: e.listStudentCode,
+        });
+      }
+    });
+    setDataSource(dataList);
+  };
 
   useEffect(() => {
-    ScheduleService.getByTeaccher(currentUser)
-      .then(response => {
-        localStorage.removeItem('defaultList');
-        localStorage.setItem('defaultList', JSON.stringify(response.data));
-        setDataSource(response.data);
-        setLoading(true);
-      })
-      .catch(error => {
-        setLoading(false);
-      });
-  }, [deleteSuccess]);
-
-  useEffect(() => {
-    ScheduleService.getByTeaccher(currentUser)
-      .then(response => {
-        localStorage.removeItem('nonDefaultList');
-        localStorage.setItem('nonDefaultList', JSON.stringify(response.data));
-        setLoading(true);
-      })
-      .catch(error => {
-        console.log(error);
-        setLoading(false);
-      });
+    getAllUsers();
   }, []);
+
+  useEffect(() => {
+    setDataList(listClass);
+  }, [listClass]);
 
   //reload data when filter and search recognized
   useFilterSearch(
@@ -99,43 +113,8 @@ const ManageAttend = () => {
     setCustomizeEmpty
   );
 
-  const showDetailModal = data => {
-    ScheduleService.getByID(data.scheduleId).then(response => {
-      setDetailModalData(response.data);
-    });
-    setIsDetailModalVisible(true);
-  };
-
-  const showDeleteModal = async data => {
-    try {
-      setIsDeleteModalVisible(true);
-      setDeleteModalData(data);
-      return;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleCancel = () => {
-    if (isDetailModalVisible) {
-      setIsDetailModalVisible(false);
-      return;
-    }
-    if (isDeleteModalVisible) {
-      setIsDeleteModalVisible(false);
-      return;
-    }
-  };
-
-  const handleDeleteModalOK = async () => {
-    ScheduleService.deleteById(deleteModalData.scheduleId).then(response => {
-      showSuccessMessage('Delete schedule success!');
-      setIsDeleteModalVisible(false);
-      setDeleteSuccess(true);
-    }).catch(error => {
-      showErrorMessage('Error: ' + error.response.data);
-      setIsDeleteModalVisible(false);
-    });
+  const navigateToClass = data => {
+    navigate(`/mark/my-class/${data.id}`, { state: { id: data.id } });
   };
 
   const handleSearch = value => {
@@ -171,7 +150,7 @@ const ManageAttend = () => {
     <div className="asset__list" style={{ display: 'block', width: '1000px' }}>
       <ConfigProvider renderEmpty={customizeEmpty ? customizeRenderEmpty : undefined}>
         <Row justify="start" align="middle">
-          <h2 className="title">Schedule List</h2>
+          <h2 className="title">Danh sách lớp học của bạn</h2>
         </Row>
         <Row style={{ marginBottom: '50px' }} className="utility_bar">
           <Col span={8} push={5}>
@@ -192,36 +171,17 @@ const ManageAttend = () => {
         <Row justify="center" className="asset_table">
           <Col span={24}>
             <Table
-              rowKey="scheduleId"
+              rowKey="id"
               pagination={{
                 pageSize: 10,
                 hideOnSinglePage: true,
                 itemRender: itemRender,
               }}
-              columns={configTableColumns(showDetailModal, showDeleteModal)}
+              columns={configTableColumns(
+                navigateToClass
+              )}
               dataSource={dataSource}
             />
-            <DetailModal
-              isDetailModalVisible={isDetailModalVisible}
-              handleCancel={handleCancel}
-              scheduleId={detailModalData.scheduleId}
-              scheduleTime={detailModalData.scheduleTime}
-              scheduleFrom={detailModalData.scheduleFrom}
-              scheduleTo={detailModalData.scheduleTo}
-              className={detailModalData.className}
-              subjectName={detailModalData.subjectName}
-            />
-            <Modal
-              title="Are you sure ?"
-              visible={isDeleteModalVisible}
-              onCancel={handleCancel}
-              onOk={handleDeleteModalOK}
-              okText="Delete"
-              closable={false}
-              width={420}
-            >
-              <p>Do you want to delete this schedule {deleteModalData.scheduleId}</p>
-            </Modal>
           </Col>
         </Row>
       </ConfigProvider>
@@ -229,4 +189,4 @@ const ManageAttend = () => {
   );
 };
 
-export default ManageAttend;
+export default ManageMark;

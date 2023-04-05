@@ -1,0 +1,119 @@
+.field_name {
+    font-weight: bold;
+  }
+  
+  .field_value {
+    font-style: italic;
+  }
+  
+  .create_button {
+    width: 153px;
+    height: 34px;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: #d6001c;
+    color: white;
+    border: none;
+  }
+  
+  .title {
+    font-weight: bold;
+    color: #d6001c;
+    margin-top: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .utility_bar {
+    margin-bottom: 20px;
+  }
+  
+  .ant-btn-group > .ant-btn:first-child:not(:last-child),
+  .ant-btn-group > span:first-child:not(:last-child) > .ant-btn {
+    width: 155px;
+    max-width: 100%;
+  }
+  
+  .ant-table.ant-table-bordered
+    > .ant-table-container
+    > .ant-table-content
+    > table
+    > thead
+    > tr
+    > th:nth-child(1) {
+    max-width: 100%;
+    width: 100px;
+  }
+  
+  .ant-table.ant-table-bordered
+    > .ant-table-container
+    > .ant-table-content
+    > table
+    > thead
+    > tr
+    > th:nth-child(2) {
+    max-width: 100%;
+    width: 300px;
+  }
+  
+  .ant-table.ant-table-bordered
+    > .ant-table-container
+    > .ant-table-content
+    > table
+    > thead
+    > tr
+    > th:nth-child(3) {
+    max-width: 100%;
+    width: 100px;
+  }
+  
+  .ant-table.ant-table-bordered
+    > .ant-table-container
+    > .ant-table-content
+    > table
+    > thead
+    > tr
+    > th:nth-child(4) {
+    max-width: 100%;
+    width: 200px;
+  }
+  
+  .ant-table.ant-table-bordered
+    > .ant-table-container
+    > .ant-table-content
+    > table
+    > thead
+    > tr
+    > th:nth-child(5) {
+    max-width: 100%;
+    width: 50px;
+  }
+  
+  .ant-btn.ant-btn-primary.ant-input-search-button {
+    background-color: white;
+  }
+  
+  .anticon.anticon-search {
+    color: black;
+  }
+  
+  .ant-modal-content .ant-modal-header .ant-modal-title,
+  .ant-modal-close-x {
+    color: #d6001c;
+  }
+  
+  .ant-modal-content .ant-modal-header {
+    background-color: #ebebe0;
+  }
+  
+  .ant-modal-footer {
+    text-align: left !important;
+  }
+  
+  .ant-modal-footer .ant-btn-primary {
+    float: left;
+    margin-right: 20px;
+    background: #d6001c !important;
+  }
+  
