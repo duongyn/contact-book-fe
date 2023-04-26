@@ -11,6 +11,10 @@ import configTableColumns from './page_settings/tableColumns';
 import DetailModal from './components/DetailModal';
 import useFilterSearch from './hooks/useFilterSearch';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
+import ClassService from '../../services/classService';
+import { Button, Form } from 'react-bootstrap';
+import TableBootstrap from 'react-bootstrap/Table';
+import axios from 'axios';
 
 const { Search } = Input;
 
@@ -37,6 +41,8 @@ const ManageAsset = () => {
   const navigate = useNavigate();
 
   const [dataSource, setDataSource] = useState([]);
+  const [filterList, setFilterList] = useState([]);
+  const [classList, setClassList] = useState([]);
 
   const [loading, setLoading] = useState(false);
 
@@ -46,10 +52,13 @@ const ManageAsset = () => {
 
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [keyValid, setKeyValid] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [week, setWeek] = useState([]);
+  const [currentClass, setCurrentClass] = useState('');
+  const [filterDate, setFilterDate] = useState('');
+  const [selectedFile, setSelectedFile] = useState();
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   const [detailModalData, setDetailModalData] = useState({
     scheduleId: 0,
@@ -82,10 +91,48 @@ const ManageAsset = () => {
         setLoading(true);
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         setLoading(false);
       });
+    ClassService.getDefault()
+      .then(response => {
+        setClassList(response.data);
+      }).catch(error => {
+        console.error(error);
+      })
   }, []);
+
+  const showSchedulesByClass = evt => {
+    setFilterDate('');
+    if (evt.target.value == undefined || evt.target.value == '' || evt.target.value == null) {
+      setFilterList([]);
+      setCurrentClass('');
+      return;
+    }
+    let list = dataSource.filter(el => el.className == evt.target.value);
+    setCurrentClass(evt.target.value)
+    setFilterList(list);
+  }
+
+  const handleChangeWeek = evt => {
+    let current = new Date(evt.target.value)
+    setFilterDate(evt.target.value);
+    var week = new Array();
+    current.setDate((current.getDate() - current.getDay() + 1));
+    for (var i = 0; i < 7; i++) {
+      week.push(
+        new Date(current)
+      );
+      current.setDate(current.getDate() + 1);
+    }
+    let list = [];
+    if (currentClass != '') {
+      list = dataSource.filter(el => el.className == currentClass);
+    }
+    list = list.filter(el => new Date(el.scheduleTime) >= week[0] && new Date(el.scheduleTime) < week[6]);
+    setFilterList(list);
+    setWeek(week);
+  }
 
   //reload data when filter and search recognized
   useFilterSearch(
@@ -97,23 +144,6 @@ const ManageAsset = () => {
     setCustomizeEmpty
   );
 
-  const showDetailModal = data => {
-    ScheduleService.getByID(data.scheduleId).then(response => {
-      setDetailModalData(response.data);
-    });
-    setIsDetailModalVisible(true);
-  };
-
-  const showDeleteModal = async data => {
-    try {
-      setIsDeleteModalVisible(true);
-      setDeleteModalData(data);
-      return;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleCancel = () => {
     if (isDetailModalVisible) {
       setIsDetailModalVisible(false);
@@ -123,47 +153,42 @@ const ManageAsset = () => {
       setIsDeleteModalVisible(false);
       return;
     }
-  };
-
-  const handleDeleteModalOK = async () => {
-    ScheduleService.deleteById(deleteModalData.scheduleId).then(response => {
-      showSuccessMessage('Delete schedule success!');
-      setIsDeleteModalVisible(false);
-      setDeleteSuccess(true);
-    }).catch(error => {
-      showErrorMessage('Error: ' + error.response.data);
-      setIsDeleteModalVisible(false);
-    });
-  };
-
-  const handleSearch = value => {
-    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-    if (value.trim().length <= 50 && !specialChars.test(value)) {
-      setSearchText(value.trim());
-      setSearchValue(value.trim());
+    if(showUploadModal) {
+      setShowUploadModal(false);
     }
   };
 
-  const handleTrim = evt => {
-    setSearchText(evt.target.value.trim());
-  };
+  const handleOkUpload = () => {
+    setShowUploadModal(false)
+    const formData = new FormData();
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+      axios.post('http://localhost:8080/schedules/add-schedule-excel',
+        formData,
+        {
+          headers: {
+            "Content-type": "multipart/form-data",
+          },
+        }).then(response => {
+          showSuccessMessage(`Tạo danh sách thời khóa biểu thành công`);
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }).catch(error => {
+          if (error.response.data) {
+            showErrorMessage("Import thất bại "+error.response.data);
+          }
+          else {
+            showErrorMessage("Import thất bại "+error);
+          }
+        });
+    }
+  }
 
-  const handleKey = evt => {
-    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-    setSearchText(evt.target.value);
-    if (evt.target.value.length > 50) {
-      setKeyValid(true);
-      setErrorMsg('The keyword max length is 50 characters');
-      return;
-    }
-    if (specialChars.test(evt.target.value)) {
-      setKeyValid(true);
-      setErrorMsg('The keyword should not contain special characters');
-      return;
-    }
-    setKeyValid(false);
-    setErrorMsg('');
-  };
+  const onFileChange = evt => {
+    setSelectedFile(evt.target.files[0]);
+    setShowUploadModal(true)
+  }
 
   return (
     <div className="asset__list" style={{ display: 'block', width: '1000px' }}>
@@ -171,22 +196,8 @@ const ManageAsset = () => {
         <Row justify="start" align="middle">
           <h2 className="title">Schedule List</h2>
         </Row>
-        <Row style={{ marginBottom: '50px' }} className="utility_bar">
-          <Col span={8} push={5}>
-            <Input.Search
-              onSearch={handleSearch}
-              onChange={handleKey}
-              onBlur={handleTrim}
-              style={{
-                width: '70%',
-              }}
-              maxLength={51}
-              defaultValue=""
-              value={searchText}
-            />
-            {keyValid && <div style={{ display: 'block', color: 'red' }}>{errorMsg}</div>}
-          </Col>
-          <Col span={3} push={4}>
+        <Row className="utility_bar">
+          <Col span={3}>
             <button
               type="button"
               style={{ paddingTop: '6px' }}
@@ -195,45 +206,110 @@ const ManageAsset = () => {
                 navigate('/schedule/create');
               }}
             >
-              Create Schedule
+              Tạo TKB
             </button>
           </Col>
         </Row>
-        <Row justify="center" className="asset_table">
-          <Col span={24}>
-            <Table
-              rowKey="scheduleId"
-              pagination={{
-                pageSize: 10,
-                hideOnSinglePage: true,
-                itemRender: itemRender,
-              }}
-              columns={configTableColumns(showDetailModal, showDeleteModal)}
-              dataSource={dataSource}
-            />
-            <DetailModal
-              isDetailModalVisible={isDetailModalVisible}
-              handleCancel={handleCancel}
-              scheduleId={detailModalData.scheduleId}
-              scheduleTime={detailModalData.scheduleTime}
-              scheduleFrom={detailModalData.scheduleFrom}
-              scheduleTo={detailModalData.scheduleTo}
-              className={detailModalData.className}
-              subjectName={detailModalData.subjectName}
-            />
-            <Modal
-              title="Are you sure ?"
-              visible={isDeleteModalVisible}
-              onCancel={handleCancel}
-              onOk={handleDeleteModalOK}
-              okText="Delete"
-              closable={false}
-              width={420}
-            >
-              <p>Do you want to delete this schedule {deleteModalData.scheduleId}</p>
-            </Modal>
-          </Col>
+        <Row>
+          <Form.Group className="mb-3">
+            <Form.Label className="mr-5">Import DS Thời Khóa Biểu</Form.Label>
+            <Form.Control readOnly name="scheduleList" type="file" onChange={onFileChange} />
+          </Form.Group>
         </Row>
+        <Row style={{ marginBottom: '10px' }}>
+          <Form.Group className="mb-3">
+            <Form.Label>Chọn Lớp</Form.Label>
+            <Form.Select style={{ fontSize: '18px' }}
+              name="className"
+              onChange={showSchedulesByClass}
+            >
+              <option value=""></option>
+              {classList.map((c, index) =>
+                <option key={index} value={c.className}>{c.className}</option>
+              )}
+            </Form.Select>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label className="ml-5">Lọc theo tuần</Form.Label>
+            <Form.Control
+              name="scheduleTime"
+              onChange={handleChangeWeek}
+              type="date"
+              value={filterDate}
+              disabled={currentClass == ''}
+            // min={new Date().toISOString().split('T')[0]}
+            />
+          </Form.Group>
+        </Row>
+        <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>
+          Thời khóa biểu {currentClass != '' ? 'lớp ' + currentClass : ''} tuần {week.length > 0 ? week[0].getDate() + '/' + week[0].getMonth()+1 + ' - ' + week[6].getDate() + '/' + week[6].getMonth()+1 : 'này'}
+        </h1>
+        <TableBootstrap bordered hover style={{ width: '1000px' }}>
+          <thead>
+            <tr>
+              <th>Tiết/Ngày</th>
+              <th>Thứ Hai</th>
+              <th>Thứ Ba</th>
+              <th>Thứ Tư</th>
+              <th>Thứ Năm</th>
+              <th>Thứ Sáu</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tiết 1 (7:00 - 8:30)</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+            </tr>
+            <tr>
+              <td>Tiết 2 (8:45 - 10:15)</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+            </tr>
+            <tr>
+              <td>Tiết 3 (10:30 - 12:00)</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+            </tr>
+            <tr><td style={{ textAlign: 'center', fontSize: '20px', backgroundColor: '#C3BDC3' }} colSpan={6}>Giờ nghỉ trưa</td></tr>
+            <tr>
+              <td>Tiết 4 (13:00 - 14:30)</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+            </tr>
+            <tr>
+              <td>Tiết 5 (14:45 - 16:15)</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+            </tr>
+          </tbody>
+        </TableBootstrap>
+        <Modal
+          title="Are you sure ?"
+          visible={showUploadModal}
+          onCancel={handleCancel}
+          onOk={handleOkUpload}
+          okText="Import"
+          closable={false}
+          width={420}
+        >
+          <p>Bạn có muốn import danh sách thời khóa biểu này không?</p>
+        </Modal>
       </ConfigProvider>
     </div>
   );
