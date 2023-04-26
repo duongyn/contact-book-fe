@@ -22,6 +22,8 @@ import moment from 'moment';
 import { FilterFilled } from '@ant-design/icons';
 import { typeList } from './typeList';
 import FilterMenu from './FilterMenu';
+import { Form } from 'react-bootstrap';
+import axios from 'axios';
 
 const { Option } = Select;
 const itemRender = (_, type, originalElement) => {
@@ -61,6 +63,8 @@ const UserPage = () => {
   const [searchValue, setSearchValue] = useState('');
   const currentUser = useAuth().user.sub;
   const [typeFilterLabel, setTypeFilterLabel] = useState('Type');
+  const [selectedFile, setSelectedFile] = useState();
+  const [showUploadModal, setShowUploadModal] = useState(false);
   let usersList = [];
   const columns = [
     {
@@ -262,6 +266,10 @@ const UserPage = () => {
       setIsCheckModalVisible(false);
       return;
     }
+    if(showUploadModal) {
+      setShowUploadModal(false);
+      return;
+    }
   };
   const handleClickSearch = evt => {
     const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
@@ -283,12 +291,12 @@ const UserPage = () => {
       }, 2000);
     })
       .catch(e => {
-        if(e.response.data.message) {
+        if (e.response.data.message) {
           showErrorMessage('Error: ' + e.response.data.message);
           console.error(e);
         }
         else {
-          showErrorMessage('Error: '+e);
+          showErrorMessage('Error: ' + e);
         }
       });
   };
@@ -321,10 +329,49 @@ const UserPage = () => {
     setErrorMsg('');
   };
 
+  const handleOkUpload = () => {
+    setShowUploadModal(false)
+    const formData = new FormData();
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+      axios.post('http://localhost:8080/users/add-user-excel',
+        formData,
+        {
+          headers: {
+            "Content-type": "multipart/form-data",
+          },
+        }).then(response => {
+          showSuccessMessage(`Tạo danh sách người dùng thành công`);
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+
+        }).catch(error => {
+          if (error.response.data) {
+            showErrorMessage("Import thất bại " + error.response.data);
+          }
+          else {
+            showErrorMessage("Import thất bại " + error);
+          }
+        });
+    }
+  }
+
+  const onFileChange = evt => {
+    setSelectedFile(evt.target.files[0]);
+    setShowUploadModal(true)
+  }
+
   return (
-    <div style={{ display: 'block', width: '1000px', marginLeft: '50px'}}>
+    <div style={{ display: 'block', width: '1000px', marginLeft: '50px' }}>
       <Row justify="start" align="middle">
         <h2 className="title">Danh sách người dùng</h2>
+      </Row>
+      <Row>
+        <Form.Group className="mb-3">
+          <Form.Label className="mr-5">Import DS Người dùng</Form.Label>
+          <Form.Control readOnly name="userList" type="file" onChange={onFileChange} />
+        </Form.Group>
       </Row>
       <Row style={{ marginBottom: '50px' }}>
         <Col span={6}>
@@ -383,7 +430,17 @@ const UserPage = () => {
         <p>Vai trò: {detail.type}</p>
         <p>Nơi ở: {detail.location}</p>
       </Modal>
-
+      <Modal
+        title="Are you sure ?"
+        visible={showUploadModal}
+        onCancel={handleCancel}
+        onOk={handleOkUpload}
+        okText="Import"
+        closable={false}
+        width={420}
+      >
+        <p>Bạn có muốn import danh sách người dùng này không?</p>
+      </Modal>
       <Modal
         title="Are you sure?"
         open={isDeleteModalVisible}

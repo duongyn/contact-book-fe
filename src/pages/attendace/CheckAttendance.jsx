@@ -32,6 +32,12 @@ const CheckAttendance = () => {
   const [attendanceList, setAttendanceList] = useState([]);
 
   useEffect(() => {
+    if(scheduleid == 0) {
+      showErrorMessage('Không tìm thấy thời khóa biểu nào cho ngày ');
+          setTimeout(() => {
+            navigate('/attendance');
+          }, 3000);
+    }
     if (scheduleid) {
       ScheduleService.getByID(scheduleid)
         .then(response => {

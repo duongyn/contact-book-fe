@@ -242,63 +242,6 @@ function CreateAssignmentPage() {
               </div>
             </div>
           </div>
-          {/* <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Teacher</span>
-              <div className="form-group-custom">
-                <Input
-                  id="userId"
-                  name="user"
-                  value={formik.values.user}
-                  type="text"
-                  size="large"
-                  readOnly
-                  {...formik.getFieldProps('user')}
-                  className={
-                    formik.errors.user && formik.touched.user
-                      ? 'text-input error form-control'
-                      : 'text-input form-control'
-                  }
-                  onClick={handleUserIconClick}
-                />
-                <label className="user-search-icon" htmlFor="userId">
-                  <SearchOutlined />
-                </label>
-              </div>
-            </div>
-
-            {formik.touched.user && formik.errors.user ? (
-              <div className="warning">{formik.errors.user}</div>
-            ) : null}
-          </div>
-          <div className="wrapper-custom">
-            <div className="form-group-container-custom">
-              <span style={{ paddingTop: '10px', fontSize: '18px' }}>Asset</span>
-              <div className="form-group-custom">
-                <Input
-                  id="assetId"
-                  name="asset"
-                  value={formik.values.asset}
-                  type="text"
-                  size="large"
-                  readOnly
-                  {...formik.getFieldProps('asset')}
-                  className={
-                    formik.errors.asset && formik.touched.asset
-                      ? 'text-input error form-control'
-                      : 'text-input form-control'
-                  }
-                  onClick={handleAssetIconClick}
-                />
-                <label className="user-search-icon" htmlFor="assetId">
-                  <SearchOutlined />
-                </label>
-              </div>
-            </div>
-            {formik.touched.teacher && formik.errors.teacher ? (
-              <div className="warning">{formik.errors.teacher}</div>
-            ) : null}
-          </div> */}
           <div className="align-button-right">
             <button
               // disabled={formik.errors.user || formik.errors.teacher}
