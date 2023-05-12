@@ -23,7 +23,8 @@ const CreateMark = () => {
     teacherCode: '',
     subjectId: 0,
     subjectName: '',
-    markType: ''
+    markType: '',
+    feedback: ''
   });
   const params = useParams();
   const classId = params.id;
@@ -98,15 +99,20 @@ const CreateMark = () => {
 
   const handleSubmit = evt => {
     evt.preventDefault();
+    let semester = "1";
+    if(newAsset.markType.includes("2")){
+      semester = "2";
+    }
     const data = {
       markValue: newAsset.markValue,
       markType: newAsset.markType,
       teacherCode: currentUser,
       studentCode: userCode,
       markSubjectId: getSubjectId(newAsset.subjectName),
-      subjectName: newAsset.subjectName
+      subjectName: newAsset.subjectName,
+      feedback: newAsset.feedback,
+      semester: semester
     }
-    console.log(data);
     MarkService.create(data).then(response => {
       toast.success(`Tạo điểm thành công!`, {
         position: 'top-right',
@@ -173,9 +179,7 @@ const CreateMark = () => {
             onBlur={handleBlur}
           >
             <option value=""></option>
-            <option value="15m">15 phút</option>
-            <option value="1h">1 tiết</option>
-            <option value="1/2semester">Giữa kì</option>
+            {/* <option value="1/2semester">Giữa kì</option> */}
             <option value="semester1">Kì 1</option>
             <option value="semester2">Kì 2</option>
           </Form.Select>
@@ -199,6 +203,17 @@ const CreateMark = () => {
           </Form.Select>
           <Form.Control.Feedback type="invalid">{errorClassName(newAsset.subjectName)}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label className="mr-2">Đánh giá</Form.Label>
+          <Form.Control
+            name="feedback"
+            value={newAsset.feedback}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            type="input"
+          />
         </Form.Group>
 
         <Form.Group className="d-flex flex-row-reverse">
