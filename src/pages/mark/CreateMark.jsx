@@ -43,7 +43,6 @@ const CreateMark = () => {
     }
     if (userCode) {
       UserService.getByCode(userCode).then(response => {
-        console.log(response.data);
         setStudent(response.data);
       }).catch(error => {
         console.error(error.response.data);
@@ -56,7 +55,7 @@ const CreateMark = () => {
     SubjectService.getAll().then(response => {
       let list = [];
       response.data.forEach(c => {
-        if (student != undefined && c.subjectGrade == student.studentClass) {
+        if (student != undefined && c.subjectGrade == student.studentClass.replace(/[a-zA-Z]+/gm,"")) {
           list.push(c);
         }
       });
@@ -146,7 +145,7 @@ const CreateMark = () => {
   };
 
   const errorClassName = className => {
-    if (!className) return 'Vui lòng điền cho thời khóa biểu';
+    if (!className) return 'Vui lòng không bỏ trống!';
     return '';
   }
 
@@ -179,9 +178,10 @@ const CreateMark = () => {
             onBlur={handleBlur}
           >
             <option value=""></option>
-            {/* <option value="1/2semester">Giữa kì</option> */}
-            <option value="semester1">Kì 1</option>
-            <option value="semester2">Kì 2</option>
+            <option value="halfsemester1">Giữa kì I</option>
+            <option value="semester1">Kì I</option>
+            <option value="halfsemester2">Giữa kì II</option>
+            <option value="semester2">Kì II</option>
           </Form.Select>
           <Form.Control.Feedback type="invalid">{errorClassName(newAsset.markType)}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
