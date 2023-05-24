@@ -7,8 +7,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import ScheduleService from '../../services/scheduleService';
-import configTableColumns from './page_settings/tableColumns';
-import DetailModal from './components/DetailModal';
 import useFilterSearch from './hooks/useFilterSearch';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import useAuth from '../../hooks/useAuth';
@@ -17,6 +15,7 @@ import axios from 'axios';
 import ClassService from '../../services/classService';
 import AttendanceService from '../../services/attendaceService';
 import UserService from '../../services/userService';
+import { Form } from 'react-bootstrap';
 import { CheckOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { Space, Button, Tooltip } from 'antd';
 
@@ -64,15 +63,8 @@ const ManageAttend = () => {
   const [userClass, setUserClass] = useState({});
   const [dateMonth, setDateMonth] = useState([]);
   const [attendanceList, setAttendanceList] = useState([]);
+  const [filterDate, setFilterDate] = useState('');
 
-  const [detailModalData, setDetailModalData] = useState({
-    scheduleId: 0,
-    scheduleTime: '',
-    scheduleFrom: '',
-    scheduleTo: '',
-    className: '',
-    subjectName: ''
-  });
   const [deleteModalData, setDeleteModalData] = useState({});
 
   useEffect(() => {
@@ -124,22 +116,53 @@ const ManageAttend = () => {
     return s.firstName + ' ' + s.lastName;
   }
 
+  const getStudentDob = code => {
+    let s = allStudent.filter(el => el.userCode == code)[0];
+    return s.dob;
+  }
+
   const checkAttendance = (scheduleId, userCode) => {
     let list = attendanceList.filter(el => (el.scheduleId == scheduleId && el.userCode == userCode));
     if (list[0] == undefined || list[0] == null) {
       return "N/A";
     }
-    else if(list[0].isAttended == 'true'){
+    else if (list[0].isAttended == 'true') {
       return "Có Mặt";
     }
     else {
-      return "Nghỉ";
+      return "Vắng mặt";
     }
+  }
+
+  const checkAttendanceByDate = (scheduleTime, userCode) => {
+    let list = attendanceList.filter(el => (el.scheduleTime == scheduleTime && el.userCode == userCode));
+    if (list[0] == undefined || list[0] == null) {
+      return "N/A";
+    }
+    else if (list[0].isAttended == 'true') {
+      return <strong style={{ color: 'green' }}>Có Mặt</strong>;
+    }
+    else {
+      return <strong style={{ color: 'red' }}>Vắng mặt</strong>;
+    }
+  }
+
+  const handleChangeWeek = evt => {
+    let current = new Date(evt.target.value)
+    setFilterDate(evt.target.value);
+  }
+
+  const getScheduleByFilterDate = filterDate => {
+    if (filterDate != '') {
+      let current = new Date(filterDate)
+      let list = dataSource.filter(el => ((new Date(el.scheduleTime).getDate()) == current.getDate() && new Date(el.scheduleTime).getMonth() == current.getMonth()));
+      return (list[0] != undefined && list[0] != null) ? list[0].scheduleId : 0;
+    }
+    return 0;
   }
 
   const getScheduleByTime = (timeDate, timeMonth) => {
     let list = dataSource.filter(el => ((new Date(el.scheduleTime).getDate()) == timeDate && (new Date(el.scheduleTime).getMonth() + 1) == timeMonth));
-    console.log(list[0]);
     return (list[0] != undefined && list[0] != null) ? list[0].scheduleId : 0;
   }
 
@@ -153,73 +176,6 @@ const ManageAttend = () => {
     setCustomizeEmpty
   );
 
-  const showDetailModal = data => {
-    ScheduleService.getByID(data.scheduleId).then(response => {
-      setDetailModalData(response.data);
-    });
-    setIsDetailModalVisible(true);
-  };
-
-  const showDeleteModal = async data => {
-    try {
-      setIsDeleteModalVisible(true);
-      setDeleteModalData(data);
-      return;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleCancel = () => {
-    if (isDetailModalVisible) {
-      setIsDetailModalVisible(false);
-      return;
-    }
-    if (isDeleteModalVisible) {
-      setIsDeleteModalVisible(false);
-      return;
-    }
-  };
-
-  const handleDeleteModalOK = async () => {
-    ScheduleService.deleteById(deleteModalData.scheduleId).then(response => {
-      showSuccessMessage('Delete schedule success!');
-      setIsDeleteModalVisible(false);
-      setDeleteSuccess(true);
-    }).catch(error => {
-      showErrorMessage('Error: ' + error.response.data);
-      setIsDeleteModalVisible(false);
-    });
-  };
-
-  const handleSearch = value => {
-    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-    if (value.trim().length <= 50 && !specialChars.test(value)) {
-      setSearchText(value.trim());
-      setSearchValue(value.trim());
-    }
-  };
-
-  const handleTrim = evt => {
-    setSearchText(evt.target.value.trim());
-  };
-
-  const handleKey = evt => {
-    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-    setSearchText(evt.target.value);
-    if (evt.target.value.length > 50) {
-      setKeyValid(true);
-      setErrorMsg('The keyword max length is 50 characters');
-      return;
-    }
-    if (specialChars.test(evt.target.value)) {
-      setKeyValid(true);
-      setErrorMsg('The keyword should not contain special characters');
-      return;
-    }
-    setKeyValid(false);
-    setErrorMsg('');
-  };
   const getDaysInMonth = (month, year) => (new Array(31)).fill('').map((v, i) => new Date(year, month - 1, i + 1)).filter(v => v.getMonth() === month - 1)
 
   const createDateList = () => {
@@ -232,39 +188,52 @@ const ManageAttend = () => {
   return (
     <div className="asset__list" style={{ display: 'block', width: '1000px' }}>
       <ConfigProvider renderEmpty={customizeEmpty ? customizeRenderEmpty : undefined}>
-        <Row justify="start" align="middle">
-          <h2 className="title">Schedule List</h2>
-        </Row>
-        <Row style={{ marginBottom: '50px' }} className="utility_bar">
-          <Col span={8} push={5}>
-            <Input.Search
-              onSearch={handleSearch}
-              onChange={handleKey}
-              onBlur={handleTrim}
-              style={{
-                width: '70%',
-              }}
-              maxLength={51}
-              defaultValue=""
-              value={searchText}
-            />
-            {keyValid && <div style={{ display: 'block', color: 'red' }}>{errorMsg}</div>}
-          </Col>
-        </Row>
         <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>
-          Điểm danh {userClass.className}
+          Điểm danh lớp {userClass.className}
         </h1>
+        <Form.Group className="mb-3">
+          <Form.Label className="ml-5">Lọc theo ngày</Form.Label>
+          <Form.Control
+            name="scheduleTime"
+            onChange={handleChangeWeek}
+            type="date"
+            value={filterDate}
+          />
+        </Form.Group>
         <TableBootstrap bordered hover>
           <thead>
             <tr>
-              <th style={{ width: '150px' }}>Ngày/Học sinh</th>
-              {studentList.map((el, index) =>
-                <th key={index}>{getStudentName(el)}</th>
-              )}
+              <th>STT</th>
+              <th>Họ Tên</th>
+              <th>Mã HS</th>
+              <th>Ngày sinh</th>
+              <th>Trạng thái</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
+            {studentList.map((u, index) =>
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{getStudentName(u)}</td>
+                <td>{u}</td>
+                <td>{getStudentDob(u)}</td>
+                <td>
+                  {checkAttendanceByDate(filterDate, u)}
+                </td>
+                <td>
+                  <Space size="small">
+                    <Tooltip title="attendance">
+                      <Link to={{ pathname: '/attendance/check/' + getScheduleByFilterDate(filterDate) }}>
+                        <Button type="text" icon={<CheckOutlined />} />
+                      </Link>
+                    </Tooltip>
+                  </Space>
+                </td>
+              </tr>
+            )}
+          </tbody>
+          {/* <tbody>
             {dateMonth.map((el, index) =>
               <tr key={index}>
                 <td>{el.getDate() + '/' + (el.getMonth() + 1)}</td>
@@ -281,43 +250,8 @@ const ManageAttend = () => {
               </tr>
             )}
             <tr></tr>
-          </tbody>
+          </tbody> */}
         </TableBootstrap>
-        {/* <Row justify="center" className="asset_table">
-          <Col span={24}>
-            <Table
-              rowKey="scheduleId"
-              pagination={{
-                pageSize: 10,
-                hideOnSinglePage: true,
-                itemRender: itemRender,
-              }}
-              columns={configTableColumns(showDetailModal, showDeleteModal)}
-              dataSource={dataSource}
-            />
-            <DetailModal
-              isDetailModalVisible={isDetailModalVisible}
-              handleCancel={handleCancel}
-              scheduleId={detailModalData.scheduleId}
-              scheduleTime={detailModalData.scheduleTime}
-              scheduleFrom={detailModalData.scheduleFrom}
-              scheduleTo={detailModalData.scheduleTo}
-              className={detailModalData.className}
-              subjectName={detailModalData.subjectName}
-            />
-            <Modal
-              title="Are you sure ?"
-              visible={isDeleteModalVisible}
-              onCancel={handleCancel}
-              onOk={handleDeleteModalOK}
-              okText="Delete"
-              closable={false}
-              width={420}
-            >
-              <p>Do you want to delete this schedule {deleteModalData.scheduleId}</p>
-            </Modal>
-          </Col>
-        </Row> */}
       </ConfigProvider>
     </div>
   );

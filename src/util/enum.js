@@ -22,8 +22,6 @@ export const MANAGER_SIDEBAR = [
 
 export const TEACHER_SIDEBAR = [
   { content: 'Trang chủ', route: '/' },
-  { content: 'Quản lý môn học', route: '/subject' },
-  { content: 'Quản lý lớp học', route: '/class' },
   { content: 'Quản lý điểm học sinh', route: '/mark' },
   { content: 'Quản lý điểm danh', route: '/attendance' }
 ];
