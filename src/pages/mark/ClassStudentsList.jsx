@@ -11,7 +11,7 @@ import ClassService from '../../services/classService';
 
 const StudentMarkList = () => {
 
-  const currentUser = useAuth().user.sub;
+  const currentUser = useAuth().user.userCode;
 
   let navigate = useNavigate();
   const [newSubject, setNewSubject] = useState({});
@@ -22,8 +22,8 @@ const StudentMarkList = () => {
   const [userList, setUserList] = useState([]);
 
   useEffect(() => {
-    if (classId) {
-      ClassService.getByID(classId)
+    if (currentUser) {
+      ClassService.findByTeacher(currentUser)
         .then(response => {
           setNewSubject(response.data);
           getAllUserByClass(response.data.className)
@@ -37,7 +37,7 @@ const StudentMarkList = () => {
         });
     }
 
-  }, [classId]);
+  }, [currentUser]);
 
   const getAllUserByClass = name => {
     UserService.getAllUsersByClass(name).then(response => {
@@ -49,7 +49,7 @@ const StudentMarkList = () => {
   }
 
   const navigateToStudentMark = code => {
-    navigate(`/mark/my-class/${classId}/${code.userCode}`);
+    navigate(`/mark/my-class/${code.userCode}`);
   }
 
   const onCancel = () => {

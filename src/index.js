@@ -26,7 +26,6 @@ import EditSubject from './pages/asset/EditSubject';
 import CreateSchedule from './pages/schedules/CreateSchedule';
 import EditSchedule from './pages/schedules/EditSchedule';
 import CheckAttendance from './pages/attendace/CheckAttendance';
-import ManageMark from './pages/mark/ManageMark';
 import ClassStudentsList from './pages/mark/ClassStudentsList'
 import StudentMark from './pages/mark/StudentMarks';
 import CreateMark from './pages/mark/CreateMark';
@@ -219,25 +218,14 @@ root.render(
               index
               element={
                 <Layout title="Quản lý điểm HS">
-                  <ManageMark />
+                  <ClassStudentsList />
                 </Layout>
               }
             ></Route>
 
             <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
               <Route
-                path="my-class/:id"
-                element={
-                  <Layout title="QL điểm HS > Tạo mới">
-                    <ClassStudentsList />
-                  </Layout>
-                }
-              ></Route>
-            </Route>
-
-            <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
-              <Route
-                path="my-class/:id/:code"
+                path="my-class/:code"
                 element={
                   <Layout title="QL điểm HS > Điểm số">
                     <StudentMark />

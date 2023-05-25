@@ -41,6 +41,10 @@ const createStudentList = data => {
   });
 }
 
+const findByTeacher = code => {
+  return instance.get(`classes/find-by-teacher/${code}`, { headers: AuthHeaders() });
+}
+
 const ClassService = {
   getDefault,
   getByID,
@@ -48,7 +52,8 @@ const ClassService = {
   deleteClass,
   getValidTeachers,
   createStudentList,
-  getValidStudents
+  getValidStudents,
+  findByTeacher
 };
 
 export default ClassService;
