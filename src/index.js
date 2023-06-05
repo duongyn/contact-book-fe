@@ -29,6 +29,7 @@ import CheckAttendance from './pages/attendace/CheckAttendance';
 import ClassStudentsList from './pages/mark/ClassStudentsList'
 import StudentMark from './pages/mark/StudentMarks';
 import CreateMark from './pages/mark/CreateMark';
+import EditMark from './pages/mark/EditMark';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -236,7 +237,7 @@ root.render(
 
             <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
               <Route
-                path="my-class/:id/:code/create"
+                path="my-class/:code/create"
                 element={
                   <Layout title="QL điểm HS > Tạo điểm">
                     <CreateMark />
@@ -247,10 +248,10 @@ root.render(
 
             <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
               <Route
-                path="my-class/edit/:markid"
+                path="my-class/:code/edit/:markid"
                 element={
                   <Layout title="QL điểm HS > chỉnh sửa">
-                    <CheckAttendance />
+                    <EditMark />
                   </Layout>
                 }
               ></Route>

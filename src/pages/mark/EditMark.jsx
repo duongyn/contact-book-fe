@@ -8,16 +8,16 @@ import useAuth from '../../hooks/useAuth';
 import SubjectService from '../../services/subjectService';
 import UserService from '../../services/userService';
 import MarkService from '../../services/markService';
+import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 
-const CreateMark = () => {
+const EditMark = () => {
   let navigate = useNavigate();
 
   const handleClose = () => {
     navigate('/mark');
   };
   const [newAsset, setNewAsset] = useState({
-    markValue: 0,
-    markType: '',
+    markId: 0,
     halfMark: 0,
     semesterMark: 0,
     finalMark: 0,
@@ -27,10 +27,10 @@ const CreateMark = () => {
     teacherCode: '',
     subjectId: 0,
     subjectName: '',
-    feedback: ''
   });
   const params = useParams();
   const userCode = params.code;
+  const markId = params.markid;
 
   const [subjectList, setSubjectList] = useState([]);
 
@@ -45,6 +45,13 @@ const CreateMark = () => {
       }).catch(error => {
         console.error(error.response.data);
       })
+    }
+    if (markId) {
+      MarkService.findById(markId).then(response => {
+        setNewAsset(response.data);
+      }).catch(error => {
+        showErrorMessage('Error: ' + error);
+      });
     }
 
   }, []);
@@ -64,7 +71,7 @@ const CreateMark = () => {
   }, [student]);
 
   const [touched, setTouched] = useState({
-    markValue: false,
+    halfMark: false,
     markType: false,
     subjectName: false
   });
@@ -95,36 +102,8 @@ const CreateMark = () => {
 
   const handleSubmit = evt => {
     evt.preventDefault();
-    let semester = "1";
-    if(newAsset.markType.includes("2")){
-      semester = "2";
-    }
-    let halfMark = 0;
-    let sMark = 0;
-    let halfFeedback = '';
-    let sFeedback = '';
-    if(newAsset.markType == "halfsemester1" || newAsset.markType == "halfsemester2") {
-      halfMark = newAsset.markValue;
-      halfFeedback = newAsset.feedback;
-    }
-    else if(newAsset.markType == "semester1" || newAsset.markType == "semester2"){
-      sMark = newAsset.markValue;
-      sFeedback = newAsset.feedback;
-    }
-    const data = {
-      halfMark: halfMark,
-      semesterMark: sMark,
-      finalMark: newAsset.finalMark,
-      halfFeedback: halfFeedback,
-      semesterFeedback: sFeedback,
-      teacherCode: currentUser,
-      studentCode: userCode,
-      markSubjectId: getSubjectId(newAsset.subjectName),
-      subjectName: newAsset.subjectName,
-      semester: semester
-    }
-    MarkService.create(data).then(response => {
-      toast.success(`Tạo điểm thành công!`, {
+    MarkService.create(newAsset).then(response => {
+      toast.success(`Sửa điểm thành công!`, {
         position: 'top-right',
         autoClose: 5000,
         hideProgressBar: false,
@@ -162,59 +141,62 @@ const CreateMark = () => {
 
   return (
     <div className="container mt-5">
-      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Tạo điểm</h1>
+      <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Sửa điểm kỳ {newAsset.semester}</h1>
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
-          <Form.Label className="mr-2">Điểm số</Form.Label>
+          <Form.Label className="mr-2">Điểm giữa kì</Form.Label>
           <Form.Control
-            name="markValue"
-            value={newAsset.markValue}
+            name="halfMark"
+            value={newAsset.halfMark}
             onChange={handleChange}
             onBlur={handleBlur}
             type="input"
           />
-          <Form.Control.Feedback type="invalid">{errorScheduleTime(newAsset.markValue)}</Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errorScheduleTime(newAsset.halfMark)}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label className="mr-2">Loại</Form.Label>
-          <Form.Select style={{ fontSize: '18px' }}
-            name="markType"
+          <Form.Label className="mr-2">Điểm cuối kì</Form.Label>
+          <Form.Control
+            name="semesterMark"
+            value={newAsset.semesterMark}
             onChange={handleChange}
             onBlur={handleBlur}
-          >
-            <option value=""></option>
-            <option value="halfsemester1">Giữa kì I</option>
-            <option value="semester1">Kì I</option>
-            <option value="halfsemester2">Giữa kì II</option>
-            <option value="semester2">Kì II</option>
-          </Form.Select>
+            type="input"
+          />
+          <Form.Control.Feedback type="invalid">{errorScheduleTime(newAsset.halfMark)}</Form.Control.Feedback>
+          <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label className="mr-2">Môn học</Form.Label>
-          <Form.Select style={{ fontSize: '18px' }}
-            name="subjectName"
+          <Form.Control
+            name="semesterMark"
+            value={newAsset.subjectName}
             onChange={handleChange}
-            isInvalid={touched.subjectName && Boolean(errorClassName(newAsset.subjectName))}
-            isValid={touched.subjectName && !Boolean(errorClassName(newAsset.subjectName))}
             onBlur={handleBlur}
-          >
-            <option value=""></option>
-            {subjectList.map(c =>
-              <option key={c.subjectId} value={c.subjectName}>{c.subjectName}</option>
-            )}
-          </Form.Select>
-          <Form.Control.Feedback type="invalid">{errorClassName(newAsset.subjectName)}</Form.Control.Feedback>
-          <Form.Control.Feedback type="valid"></Form.Control.Feedback>
+            disabled
+            type="input"
+          />
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label className="mr-2">Đánh giá</Form.Label>
+          <Form.Label className="mr-2">Đánh giá GK</Form.Label>
           <Form.Control
-            name="feedback"
-            value={newAsset.feedback}
+            name="halfFeedback"
+            value={newAsset.halfFeedback}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            type="input"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label className="mr-2">Đánh giá CK</Form.Label>
+          <Form.Control
+            name="semesterFeedback"
+            value={newAsset.semesterFeedback}
             onChange={handleChange}
             onBlur={handleBlur}
             type="input"
@@ -223,10 +205,10 @@ const CreateMark = () => {
 
         <Form.Group className="d-flex flex-row-reverse">
           <Button variant="light" className="d-flex mx-2 btn btn-outline-secondary" type="button" onClick={handleClose}>
-            Cancel
+            Hủy bỏ
           </Button>
           <Button variant="danger" type="submit">
-            Save
+            Lưu
           </Button>
         </Form.Group>
       </Form>
@@ -234,4 +216,4 @@ const CreateMark = () => {
   );
 };
 
-export default CreateMark;
+export default EditMark;
