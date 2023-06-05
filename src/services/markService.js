@@ -25,12 +25,19 @@ const update = data => {
     });
 }
 
+const findById = id => {
+  return instance.get(`/marks/${id}`, {
+    headers: AuthHeaders()
+  });
+}
+
 
 const MarkService = {
   getAll,
   create,
   update,
-  getByStudent
+  getByStudent,
+  findById
 };
 
 export default MarkService;

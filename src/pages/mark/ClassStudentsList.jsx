@@ -187,17 +187,6 @@ const StudentMarkList = () => {
         }}
         rowKey="userCode"
       />
-      <div style={{ marginTop: '100px' }}>
-        <Button
-          style={{ float: 'right', marginRight: '10px' }}
-          variant="light"
-          onClick={onCancel}
-          className="btn btn-outline-secondary"
-          type="button"
-        >
-          Hủy bỏ
-        </Button>
-      </div>
 
     </div>
   );

@@ -1,17 +1,14 @@
 import React, { useEffect } from 'react';
 import './ManageAttendance.css';
 import { Table, Modal, Input, Empty } from 'antd';
-import { Row, Col } from 'antd/lib/grid';
 import 'antd/dist/antd.variable.min.css';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import ScheduleService from '../../services/scheduleService';
 import useFilterSearch from './hooks/useFilterSearch';
-import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import useAuth from '../../hooks/useAuth';
 import TableBootstrap from 'react-bootstrap/Table';
-import axios from 'axios';
 import ClassService from '../../services/classService';
 import AttendanceService from '../../services/attendaceService';
 import UserService from '../../services/userService';
