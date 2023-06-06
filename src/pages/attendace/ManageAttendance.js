@@ -48,10 +48,6 @@ const ManageAttend = () => {
 
   const [searchText, setSearchText] = useState(' ');
 
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [keyValid, setKeyValid] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const currentUser = useAuth().user.userCode;
@@ -62,7 +58,6 @@ const ManageAttend = () => {
   const [attendanceList, setAttendanceList] = useState([]);
   const [filterDate, setFilterDate] = useState('');
 
-  const [deleteModalData, setDeleteModalData] = useState({});
 
   useEffect(() => {
     ScheduleService.getByTeaccher(currentUser)
@@ -79,17 +74,7 @@ const ManageAttend = () => {
 
   useEffect(() => {
     createDateList();
-    ScheduleService.getByTeaccher(currentUser)
-      .then(response => {
-        localStorage.removeItem('nonDefaultList');
-        localStorage.setItem('nonDefaultList', JSON.stringify(response.data));
-        getClassByName(response.data[0].className);
-        setLoading(true);
-      })
-      .catch(error => {
-        console.log(error);
-        setLoading(false);
-      });
+    getClassByTeacher(currentUser);
     AttendanceService.getAll().then(response => {
       setAttendanceList(response.data);
     });
@@ -98,11 +83,12 @@ const ManageAttend = () => {
     })
   }, []);
 
-  const getClassByName = name => {
-    ClassService.getDefault(name).then(response => {
-      const foundClass = response.data.filter(el => el.className == name)[0];
-      setUserClass(foundClass);
-      setStudentList(foundClass.listStudentCode);
+  const getClassByTeacher = code => {
+    ClassService.findByTeacher(code).then(response => {
+      setUserClass(response.data);
+      if (response.data.listStudentCode.length > 0) {
+        setStudentList(response.data.listStudentCode);
+      }
     }).catch(error => {
       console.error(error);
     })
@@ -110,12 +96,18 @@ const ManageAttend = () => {
 
   const getStudentName = code => {
     let s = allStudent.filter(el => el.userCode == code)[0];
-    return s.firstName + ' ' + s.lastName;
+    if (s) {
+      return s.firstName + ' ' + s.lastName;
+    }
+    return '';
   }
 
   const getStudentDob = code => {
     let s = allStudent.filter(el => el.userCode == code)[0];
-    return s.dob;
+    if (s) {
+      return s.dob;
+    }
+    return '';
   }
 
   const checkAttendance = (scheduleId, userCode) => {
@@ -151,11 +143,10 @@ const ManageAttend = () => {
 
   const getScheduleByFilterDate = filterDate => {
     if (filterDate != '') {
-      let current = new Date(filterDate)
-      let list = dataSource.filter(el => ((new Date(el.scheduleTime).getDate()) == current.getDate() && new Date(el.scheduleTime).getMonth() == current.getMonth()));
-      return (list[0] != undefined && list[0] != null) ? list[0].scheduleId : 0;
+      return filterDate;
     }
-    return 0;
+    let currentDate = new Date();
+    return currentDate.getFullYear()+"-"+(currentDate.getMonth()+1)+"-"+currentDate.getDate();
   }
 
   const getScheduleByTime = (timeDate, timeMonth) => {

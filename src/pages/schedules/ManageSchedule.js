@@ -7,8 +7,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import ScheduleService from '../../services/scheduleService';
-import configTableColumns from './page_settings/tableColumns';
-import DetailModal from './components/DetailModal';
 import useFilterSearch from './hooks/useFilterSearch';
 import { showErrorMessage, showSuccessMessage } from '../../util/toastdisplay';
 import ClassService from '../../services/classService';
@@ -59,16 +57,7 @@ const ManageAsset = () => {
   const [filterDate, setFilterDate] = useState('');
   const [selectedFile, setSelectedFile] = useState();
   const [showUploadModal, setShowUploadModal] = useState(false);
-
-  const [detailModalData, setDetailModalData] = useState({
-    scheduleId: 0,
-    scheduleTime: '',
-    scheduleFrom: '',
-    scheduleTo: '',
-    className: '',
-    subjectName: ''
-  });
-  const [deleteModalData, setDeleteModalData] = useState({});
+  const [semester, setSemester] = useState('');
 
   useEffect(() => {
     ScheduleService.getAll()
@@ -103,15 +92,42 @@ const ManageAsset = () => {
   }, []);
 
   const showSchedulesByClass = evt => {
+    let currentYear = ((new Date().getMonth() + 1 < 9) ? (new Date().getFullYear() - 1) : new Date().getFullYear());
+    let currentSemester = "semester1-"+currentYear+"to"+(currentYear+1);
+
     setFilterDate('');
+    setSemester('');
     if (evt.target.value == undefined || evt.target.value == '' || evt.target.value == null) {
       setFilterList([]);
       setCurrentClass('');
       return;
     }
-    let list = dataSource.filter(el => el.className == evt.target.value);
-    setCurrentClass(evt.target.value)
+    let list = dataSource.filter(el => el.className == evt.target.value && el.scheduleYear == currentSemester);
+    setCurrentClass(evt.target.value);
     setFilterList(list);
+  }
+
+  const showSchedulesBySchedule = evt => {
+    let currentYear = ((new Date().getMonth() + 1 < 9) ? (new Date().getFullYear() - 1) : new Date().getFullYear());
+    let list = dataSource.filter(el => el.className == currentClass);
+    let currentSemester = "";
+
+    if(evt.target.value == "1") {
+      currentSemester= "semester1-"+currentYear+"to"+(currentYear+1);
+    }
+    else if(evt.target.value == "2"){
+      currentSemester= "semester2-"+currentYear+"to"+(currentYear+1);
+    }
+    
+    if (evt.target.value == undefined || evt.target.value == '' || evt.target.value == null) {
+      let list = dataSource.filter(el => el.className == currentClass && el.scheduleYear == currentSemester);
+      setFilterList(list);
+      setSemester(evt.target.value);
+      return;
+    }
+    setSemester(evt.target.value);
+    let finalList = list.filter(el => (el.scheduleYear == currentSemester));
+    setFilterList(finalList);
   }
 
   const handleChangeWeek = evt => {
@@ -203,7 +219,7 @@ const ManageAsset = () => {
               style={{ paddingTop: '6px' }}
               className="create_button"
               onClick={() => {
-                navigate('/schedule/create');
+                navigate('/schedule/create/');
               }}
             >
               Tạo TKB
@@ -230,6 +246,18 @@ const ManageAsset = () => {
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">
+            <Form.Label>Lọc theo kì</Form.Label>
+            <Form.Select style={{ fontSize: '18px' }}
+              name="scheduleSemester"
+              value={semester}
+              onChange={showSchedulesBySchedule}
+            >
+              <option value=""></option>
+              <option value="1">Kì I</option>
+              <option value="2">Kì II</option>
+            </Form.Select>
+          </Form.Group>
+          {/* <Form.Group className="mb-3">
             <Form.Label className="ml-5">Lọc theo tuần</Form.Label>
             <Form.Control
               name="scheduleTime"
@@ -239,10 +267,10 @@ const ManageAsset = () => {
               disabled={currentClass == ''}
             // min={new Date().toISOString().split('T')[0]}
             />
-          </Form.Group>
+          </Form.Group> */}
         </Row>
         <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>
-          Thời khóa biểu {currentClass != '' ? 'lớp ' + currentClass : ''} tuần {week.length > 0 ? week[0].getDate() + '/' + week[0].getMonth()+1 + ' - ' + week[6].getDate() + '/' + week[6].getMonth()+1 : 'này'}
+          Thời khóa biểu {currentClass != '' ? 'lớp ' + currentClass : ''} năm học {(new Date().getMonth() + 1) < 9 ? (new Date().getFullYear() -1) :  new Date().getFullYear()}
         </h1>
         <TableBootstrap bordered hover style={{ width: '1000px' }}>
           <thead>
@@ -258,44 +286,44 @@ const ManageAsset = () => {
           <tbody>
             <tr>
               <td>Tiết 1 (7:00 - 8:30)</td>
-              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("1") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && el.scheduleDay == "monday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && el.scheduleDay == "tuesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && el.scheduleDay == "wednesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && el.scheduleDay == "thursday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("1") && el.scheduleDay == "friday").map(el => el.subjectName)}</td>
             </tr>
             <tr>
               <td>Tiết 2 (8:45 - 10:15)</td>
-              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("2") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && el.scheduleDay == "monday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && el.scheduleDay == "tuesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && el.scheduleDay == "wednesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && el.scheduleDay == "thursday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("2") && el.scheduleDay == "friday").map(el => el.subjectName)}</td>
             </tr>
             <tr>
               <td>Tiết 3 (10:30 - 12:00)</td>
-              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("3") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && el.scheduleDay == "monday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && el.scheduleDay == "tuesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && el.scheduleDay == "wednesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && el.scheduleDay == "thursday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("3") && el.scheduleDay == "friday").map(el => el.subjectName)}</td>
             </tr>
             <tr><td style={{ textAlign: 'center', fontSize: '20px', backgroundColor: '#C3BDC3' }} colSpan={6}>Giờ nghỉ trưa</td></tr>
             <tr>
               <td>Tiết 4 (13:00 - 14:30)</td>
-              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("4") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && el.scheduleDay == "monday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && el.scheduleDay == "tuesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && el.scheduleDay == "wednesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && el.scheduleDay == "thursday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("4") && el.scheduleDay == "friday").map(el => el.subjectName)}</td>
             </tr>
             <tr>
               <td>Tiết 5 (14:45 - 16:15)</td>
-              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 1).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 2).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 3).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 4).map(el => el.subjectName)}</td>
-              <td>{filterList.filter(el => el.slotName.includes("5") && new Date(el.scheduleTime).getDay() == 5).map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && el.scheduleDay == "monday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && el.scheduleDay == "tuesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && el.scheduleDay == "wednesday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && el.scheduleDay == "thursday").map(el => el.subjectName)}</td>
+              <td>{filterList.filter(el => el.slotName.includes("5") && el.scheduleDay == "friday").map(el => el.subjectName)}</td>
             </tr>
           </tbody>
         </TableBootstrap>

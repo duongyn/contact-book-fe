@@ -13,14 +13,15 @@ const CheckAttendance = () => {
   const currentUser = useAuth().user.sub;
 
   const initialSubjectState = {
-    scheduleId: 0,
-    scheduleTime: '',
+    attendDate: '',
+    attendYear: '',
     slotName: '',
     className: '',
     subjectName: '',
     subjectGrade: '',
     updatedBy: currentUser,
   };
+  const currentUserCode = useAuth().user.userCode;
 
   let navigate = useNavigate();
   const [newSubject, setNewSubject] = useState(initialSubjectState);
@@ -39,26 +40,26 @@ const CheckAttendance = () => {
           }, 3000);
     }
     if (scheduleid) {
-      ScheduleService.getByID(scheduleid)
-        .then(response => {
-          let data = {
-            scheduleId: response.data.scheduleId,
-            scheduleTime: response.data.scheduleTime,
-            slotName: response.data.slotName,
-            className: response.data.className,
-            updatedBy: currentUser,
-            subjectName: response.data.subjectName + ' - grade '+response.data.subjectGrade,
-          }
-          setNewSubject(data);
-          getAllUserByClass(response.data.className)
-        })
-        .catch(e => {
-          showErrorMessage('Error: ' + e.response.data);
-          setTimeout(() => {
-            navigate('/attendance');
-          }, 3000);
-          console.error(e.response.data);
-        });
+      // ScheduleService.getByID(scheduleid)
+      //   .then(response => {
+      //     let data = {
+      //       scheduleId: response.data.scheduleId,
+      //       scheduleTime: response.data.scheduleTime,
+      //       slotName: response.data.slotName,
+      //       className: response.data.className,
+      //       updatedBy: currentUser,
+      //       subjectName: response.data.subjectName + ' - grade '+response.data.subjectGrade,
+      //     }
+      //     setNewSubject(data);
+      //     getAllUserByClass(response.data.className)
+      //   })
+      //   .catch(e => {
+      //     showErrorMessage('Error: ' + e.response.data);
+      //     setTimeout(() => {
+      //       navigate('/attendance');
+      //     }, 3000);
+      //     console.error(e.response.data);
+      //   });
     }
     
   }, [scheduleid]);
@@ -93,13 +94,22 @@ const CheckAttendance = () => {
       console.error(err.response.data);
     });
   }
+
+  const getAttendYear = date => {
+    let month = new Date(date).getMonth() + 1;
+    if(month < 9) {
+
+    }
+    return new Date(month).getFullYear();
+  }
   
   const onSubmit = e => {
     e.preventDefault();
     userList.filter(el => checkboxList.indexOf(el.userCode) < 0).forEach(el => {
       let data = {
+        attendDate: scheduleid,
+        attendYear: getAttendYear(scheduleid),
         userCode: el.userCode,
-        scheduleId: scheduleid,
         className: newSubject.className,
         checkBy: currentUser,
         isAttended: 'false'
@@ -112,7 +122,8 @@ const CheckAttendance = () => {
     checkboxList.forEach(el => {
       let data = {
         userCode: el,
-        scheduleId: scheduleid,
+        attendDate: scheduleid,
+        attendYear: getAttendYear(scheduleid),
         className: newSubject.className,
         checkBy: currentUser,
         isAttended: 'true'

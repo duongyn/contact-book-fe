@@ -7,6 +7,12 @@ const getAll = () => {
   });
 }
 
+const findByUserAndDate = (userCode, date) => {
+  return instance.get(`/attendances/by-user-date/${userCode}/${date}`, {
+    headers: AuthHeaders(),
+  });
+}
+
 const create = data => {
     return instance.post('/attendances', data, {
         headers: AuthHeaders()
