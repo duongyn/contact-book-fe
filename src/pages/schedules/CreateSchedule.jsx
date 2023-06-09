@@ -20,10 +20,13 @@ const CreateSchedule = () => {
     navigate('/schedule');
   };
   const [newAsset, setNewAsset] = useState({
-    scheduleTime: '',
+    scheduleTime: '2023-06-07',
     slotName: '',
     className: '',
-    subjectName: ''
+    subjectName: '',
+    scheduleYear: '',
+    scheduleDay: '',
+
   });
 
   const [slots, setSlots] = useState([]);
@@ -96,6 +99,18 @@ const CreateSchedule = () => {
     });
   };
 
+  const handleSemesterYear = date => {
+    const scheduleDate = new Date(date).getTime();
+    let month = new Date().getMonth() + 1;
+    let year = new Date().getFullYear();
+    if(month < 9) {
+      return "semester2-"+(year-1)+"to"+(year);
+    }
+    else {
+      return "semester1-"+year+"to"+(year+1);
+    }
+  }
+
   const handleChange = evt => {
     setNewAsset({
       ...newAsset,
@@ -111,7 +126,9 @@ const CreateSchedule = () => {
       slotName: newAsset.slotName,
       className: newAsset.className,
       subjectName: newAsset.subjectName.replace(/ - grade \d+/, ""),
-      subjectGrade: newAsset.subjectName.replace(/.+ - grade /,"")
+      subjectGrade: newAsset.subjectName.replace(/.+ - grade /,""),
+      scheduleYear: handleSemesterYear(newAsset.scheduleTime),
+      scheduleDay: newAsset.scheduleDay
     }
     ScheduleService.create(data)
       .then(response => {
@@ -157,7 +174,7 @@ const CreateSchedule = () => {
     <div className="container mt-5">
       <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Create New Schedule</h1>
       <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
+        {/* <Form.Group className="mb-3">
           <Form.Label className="mr-2">Schedule Time</Form.Label>
           <Form.Control
             name="scheduleTime"
@@ -165,11 +182,28 @@ const CreateSchedule = () => {
             onChange={handleChange}
             onBlur={handleBlur}
             type="date"
-            min={new Date().toISOString().split('T')[0]}
             isInvalid={touched.scheduleTime && Boolean(errorScheduleTime(newAsset.scheduleTime))}
             isValid={touched.scheduleTime && !Boolean(errorScheduleTime(newAsset.scheduleTime))}
           />
           <Form.Control.Feedback type="invalid">{errorScheduleTime(newAsset.scheduleTime)}</Form.Control.Feedback>
+          <Form.Control.Feedback type="valid"></Form.Control.Feedback>
+        </Form.Group> */}
+
+        <Form.Group className="mb-3">
+          <Form.Label className="mr-2">Thứ</Form.Label>
+          <Form.Select style={{ fontSize: '18px' }}
+            name="scheduleDay"
+            onChange={handleChange}
+            onBlur={handleBlur}
+          >
+            <option value=""></option>
+            <option value="monday">Thứ 2</option>
+            <option value="tuesday">Thứ 3</option>
+            <option value="wednesday">Thứ 4</option>
+            <option value="thursday">Thứ 5</option>
+            <option value="friday">Thứ 6</option>
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">{errorClassName(newAsset.className)}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
         </Form.Group>
 

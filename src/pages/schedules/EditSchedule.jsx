@@ -13,12 +13,14 @@ const EditSchedule = () => {
 
   const initialSubjectState = {
     scheduleId: 0,
-    scheduleTime: '',
+    scheduleTime: '2023-06-07',
     slotName: '',
     className: '',
     updatedBy: currentUser,
     subjectGrade: '',
-    subjectName: ''
+    subjectName: '',
+    scheduleYear: '',
+    scheduleDay: '',
   };
 
   let navigate = useNavigate();
@@ -40,7 +42,9 @@ const EditSchedule = () => {
             slotName: response.data.slotName,
             className: response.data.className,
             updatedBy: currentUser,
-            subjectName: response.data.subjectName + ' - grade '+response.data.subjectGrade,
+            subjectName: response.data.subjectName + ' - grade ' + response.data.subjectGrade,
+            scheduleYear: response.data.scheduleYear,
+            scheduleDay: response.data.scheduleDay
           }
           setNewSubject(data);
         })
@@ -115,6 +119,18 @@ const EditSchedule = () => {
     });
   };
 
+  const handleSemesterYear = date => {
+    const scheduleDate = new Date(date).getTime();
+    let month = new Date().getMonth() + 1;
+    let year = new Date().getFullYear();
+    if(month < 9) {
+      return "semester2-"+(year-1)+"to"+(year);
+    }
+    else {
+      return "semester1-"+year+"to"+(year+1);
+    }
+  }
+
   const editSubject = e => {
     e.preventDefault();
     const data = {
@@ -122,7 +138,9 @@ const EditSchedule = () => {
       slotName: newSubject.slotName,
       className: newSubject.className,
       subjectName: newSubject.subjectName.replace(/ - grade \d+/, ""),
-      subjectGrade: newSubject.subjectName.replace(/.+ - grade /, "")
+      subjectGrade: newSubject.subjectName.replace(/.+ - grade /, ""),
+      scheduleYear: handleSemesterYear(newSubject.scheduleTime),
+      scheduleDay: newSubject.scheduleDay
     }
 
     ScheduleService.update(data)
@@ -158,7 +176,7 @@ const EditSchedule = () => {
     <div className="container mt-5" style={{ marginLeft: '180px', width: '500px' }}>
       <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Edit Schedule</h1>
       <Form onSubmit={editSubject} validated={false}>
-        <Form.Group className="mb-3">
+        {/* <Form.Group className="mb-3">
           <Form.Label className="mr-2">Schedule Time</Form.Label>
           <Form.Control
             name="scheduleTime"
@@ -172,6 +190,23 @@ const EditSchedule = () => {
           />
           <Form.Control.Feedback type="invalid">{errorScheduleTime(newSubject.scheduleTime)}</Form.Control.Feedback>
           <Form.Control.Feedback type="valid"></Form.Control.Feedback>
+        </Form.Group> */}
+
+        <Form.Group className="mb-3">
+          <Form.Label className="mr-2">Thứ</Form.Label>
+          <Form.Select style={{ fontSize: '18px' }}
+            name="scheduleDay"
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            value={newSubject.scheduleDay}
+          >
+            <option value=""></option>
+            <option value="monday">Thứ 2</option>
+            <option value="tuesday">Thứ 3</option>
+            <option value="wednesday">Thứ 4</option>
+            <option value="thursday">Thứ 5</option>
+            <option value="friday">Thứ 6</option>
+          </Form.Select>
         </Form.Group>
 
         <Form.Group className="mb-3">

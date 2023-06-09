@@ -13,8 +13,8 @@ import ClassService from '../../services/classService';
 import AttendanceService from '../../services/attendaceService';
 import UserService from '../../services/userService';
 import { Form } from 'react-bootstrap';
-import { CheckOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { Space, Button, Tooltip } from 'antd';
+import { Col, Row } from 'antd';
+import Moment from 'moment';
 
 const { Search } = Input;
 
@@ -48,10 +48,6 @@ const ManageAttend = () => {
 
   const [searchText, setSearchText] = useState(' ');
 
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [keyValid, setKeyValid] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const currentUser = useAuth().user.userCode;
@@ -60,9 +56,8 @@ const ManageAttend = () => {
   const [userClass, setUserClass] = useState({});
   const [dateMonth, setDateMonth] = useState([]);
   const [attendanceList, setAttendanceList] = useState([]);
-  const [filterDate, setFilterDate] = useState('');
+  const [filterDate, setFilterDate] = useState(Moment().format('yyyy-MM-DD'));
 
-  const [deleteModalData, setDeleteModalData] = useState({});
 
   useEffect(() => {
     ScheduleService.getByTeaccher(currentUser)
@@ -79,30 +74,27 @@ const ManageAttend = () => {
 
   useEffect(() => {
     createDateList();
-    ScheduleService.getByTeaccher(currentUser)
-      .then(response => {
-        localStorage.removeItem('nonDefaultList');
-        localStorage.setItem('nonDefaultList', JSON.stringify(response.data));
-        getClassByName(response.data[0].className);
-        setLoading(true);
-      })
-      .catch(error => {
-        console.log(error);
-        setLoading(false);
-      });
+    getClassByTeacher(currentUser);
     AttendanceService.getAll().then(response => {
-      setAttendanceList(response.data);
+      setAttendanceList(response.data.filter(el => new Date(el.attendDate).getTime() == new Date().getTime()));
     });
     UserService.getAllUsers().then(response => {
       setAllStudent(response.data);
     })
   }, []);
 
-  const getClassByName = name => {
-    ClassService.getDefault(name).then(response => {
-      const foundClass = response.data.filter(el => el.className == name)[0];
-      setUserClass(foundClass);
-      setStudentList(foundClass.listStudentCode);
+  useEffect(() => {
+    AttendanceService.getAll().then(response => {
+      setAttendanceList(response.data.filter(el => el.attendDate == filterDate));
+    });
+  }, [filterDate]);
+
+  const getClassByTeacher = code => {
+    ClassService.findByTeacher(code).then(response => {
+      setUserClass(response.data);
+      if (response.data.listStudentCode.length > 0) {
+        setStudentList(response.data.listStudentCode);
+      }
     }).catch(error => {
       console.error(error);
     })
@@ -110,12 +102,18 @@ const ManageAttend = () => {
 
   const getStudentName = code => {
     let s = allStudent.filter(el => el.userCode == code)[0];
-    return s.firstName + ' ' + s.lastName;
+    if (s) {
+      return s.firstName + ' ' + s.lastName;
+    }
+    return '';
   }
 
   const getStudentDob = code => {
     let s = allStudent.filter(el => el.userCode == code)[0];
-    return s.dob;
+    if (s) {
+      return s.dob;
+    }
+    return '';
   }
 
   const checkAttendance = (scheduleId, userCode) => {
@@ -132,7 +130,7 @@ const ManageAttend = () => {
   }
 
   const checkAttendanceByDate = (scheduleTime, userCode) => {
-    let list = attendanceList.filter(el => (el.scheduleTime == scheduleTime && el.userCode == userCode));
+    let list = attendanceList.filter(el => (el.attendDate == scheduleTime && el.userCode == userCode));
     if (list[0] == undefined || list[0] == null) {
       return "N/A";
     }
@@ -151,11 +149,10 @@ const ManageAttend = () => {
 
   const getScheduleByFilterDate = filterDate => {
     if (filterDate != '') {
-      let current = new Date(filterDate)
-      let list = dataSource.filter(el => ((new Date(el.scheduleTime).getDate()) == current.getDate() && new Date(el.scheduleTime).getMonth() == current.getMonth()));
-      return (list[0] != undefined && list[0] != null) ? list[0].scheduleId : 0;
+      return filterDate;
     }
-    return 0;
+    let currentDate = new Date();
+    return currentDate.getFullYear() + "-" + (currentDate.getMonth() + 1) + "-" + currentDate.getDate();
   }
 
   const getScheduleByTime = (timeDate, timeMonth) => {
@@ -197,6 +194,14 @@ const ManageAttend = () => {
             value={filterDate}
           />
         </Form.Group>
+        <Col span={5} push={3}>
+          <button type="button" className="create_assign" style={{ width: '190px' }}
+            onClick={() => {
+              navigate('/attendance/check/'+userClass.className+'/'+filterDate);
+            }}>
+            Chỉnh sửa điểm danh
+          </button>
+        </Col>
         <TableBootstrap bordered hover>
           <thead>
             <tr>
@@ -205,7 +210,6 @@ const ManageAttend = () => {
               <th>Mã HS</th>
               <th>Ngày sinh</th>
               <th>Trạng thái</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -218,7 +222,7 @@ const ManageAttend = () => {
                 <td>
                   {checkAttendanceByDate(filterDate, u)}
                 </td>
-                <td>
+                {/* <td>
                   <Space size="small">
                     <Tooltip title="attendance">
                       <Link to={{ pathname: '/attendance/check/' + getScheduleByFilterDate(filterDate) }}>
@@ -226,7 +230,7 @@ const ManageAttend = () => {
                       </Link>
                     </Tooltip>
                   </Space>
-                </td>
+                </td> */}
               </tr>
             )}
           </tbody>

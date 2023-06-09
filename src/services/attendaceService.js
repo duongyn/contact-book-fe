@@ -7,6 +7,18 @@ const getAll = () => {
   });
 }
 
+const findByUserAndDate = (userCode, date) => {
+  return instance.get(`/attendances/by-user-date/${userCode}/${date}`, {
+    headers: AuthHeaders(),
+  });
+}
+
+const findByClassAndDate = (className, date) => {
+  return instance.get(`/attendances/by-class-date/${className}/${date}`, {
+    headers: AuthHeaders(),
+  });
+}
+
 const create = data => {
     return instance.post('/attendances', data, {
         headers: AuthHeaders()
@@ -24,12 +36,13 @@ const checkUserAttend = data => {
         headers: AuthHeaders()
     });
 }
-
 const AttendanceService = {
   getAll,
   create,
   update,
-  checkUserAttend
+  checkUserAttend,
+  findByUserAndDate,
+  findByClassAndDate
 };
 
 export default AttendanceService;
