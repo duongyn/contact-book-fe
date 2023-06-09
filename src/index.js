@@ -204,7 +204,7 @@ root.render(
 
             <Route element={<RequireAuth allowedRoles={[ROLE.TEACHER]}></RequireAuth>}>
               <Route
-                path="check/:scheduleid"
+                path="check/:className/:scheduleid"
                 element={
                   <Layout title="QL điểm danh > điểm danh">
                     <CheckAttendance />

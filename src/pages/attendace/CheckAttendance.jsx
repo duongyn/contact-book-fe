@@ -27,19 +27,39 @@ const CheckAttendance = () => {
   const [newSubject, setNewSubject] = useState(initialSubjectState);
   const params = useParams();
   const scheduleid = params.scheduleid;
+  const className = params.className;
 
   const [userList, setUserList] = useState([]);
   const [checkboxList, setCheckboxList] = useState([]);
   const [attendanceList, setAttendanceList] = useState([]);
 
   useEffect(() => {
-    if(scheduleid == 0) {
+    if (scheduleid == 0) {
       showErrorMessage('Không tìm thấy thời khóa biểu nào cho ngày ');
+      setTimeout(() => {
+        navigate('/attendance');
+      }, 3000);
+    }
+    if (scheduleid && className) {
+      getAllUserByClass(className)
+      AttendanceService.findByClassAndDate(className, scheduleid)
+        .then(response => {
+          setAttendanceList(response.data);
+        }).catch(e => {
+          showErrorMessage('Error: ' + e.response.data);
           setTimeout(() => {
             navigate('/attendance');
           }, 3000);
-    }
-    if (scheduleid) {
+          console.error(e.response.data);
+        });
+
+      AttendanceService.getAll().then(response => {
+        let list = [];
+        response.data.filter(el => el.attendDate == scheduleid && el.isAttended == 'true' && el.className == className).forEach(el => {
+          list.push(el.userCode);
+        });
+        setCheckboxList(list);
+      });
       // ScheduleService.getByID(scheduleid)
       //   .then(response => {
       //     let data = {
@@ -61,21 +81,21 @@ const CheckAttendance = () => {
       //     console.error(e.response.data);
       //   });
     }
-    
+
   }, [scheduleid]);
 
-  useEffect(() => {
-    AttendanceService.getAll().then(response => {
-      setAttendanceList(response.data);
-    });
-    AttendanceService.getAll().then(response => {
-      let list = [];
-      response.data.filter(el => el.scheduleId == scheduleid && el.isAttended == 'true').forEach(el => {
-        list.push(el.userCode);
-      });
-      setCheckboxList(list);
-    });
-  }, []);
+  // useEffect(() => {
+  //   AttendanceService.getAll().then(response => {
+  //     setAttendanceList(response.data);
+  //   });
+  //   AttendanceService.getAll().then(response => {
+  //     let list = [];
+  //     response.data.filter(el => el.scheduleId == scheduleid && el.isAttended == 'true').forEach(el => {
+  //       list.push(el.userCode);
+  //     });
+  //     setCheckboxList(list);
+  //   });
+  // }, []);
 
   const handleCheckboxChange = evt => {
     if (evt.target.checked) {
@@ -97,12 +117,12 @@ const CheckAttendance = () => {
 
   const getAttendYear = date => {
     let month = new Date(date).getMonth() + 1;
-    if(month < 9) {
+    if (month < 9) {
 
     }
     return new Date(month).getFullYear();
   }
-  
+
   const onSubmit = e => {
     e.preventDefault();
     userList.filter(el => checkboxList.indexOf(el.userCode) < 0).forEach(el => {
@@ -110,7 +130,7 @@ const CheckAttendance = () => {
         attendDate: scheduleid,
         attendYear: getAttendYear(scheduleid),
         userCode: el.userCode,
-        className: newSubject.className,
+        className: className,
         checkBy: currentUser,
         isAttended: 'false'
       }
@@ -124,7 +144,7 @@ const CheckAttendance = () => {
         userCode: el,
         attendDate: scheduleid,
         attendYear: getAttendYear(scheduleid),
-        className: newSubject.className,
+        className: className,
         checkBy: currentUser,
         isAttended: 'true'
       }
@@ -146,8 +166,8 @@ const CheckAttendance = () => {
 
   const isCheckAttend = code => {
     let check = false;
-    attendanceList.filter(el => el.userCode == code && el.scheduleId == scheduleid).forEach(el => {
-      if(el.isAttended == 'true'){
+    attendanceList.filter(el => el.userCode == code && el.attendDate == scheduleid).forEach(el => {
+      if (el.isAttended == 'true') {
         check = true;
       }
     });
@@ -155,26 +175,24 @@ const CheckAttendance = () => {
   }
 
   return (
-    <div className="container mt-5" style={{ marginLeft: '50px', width: '800px', fontSize: '16pt' }}>
+    <div className="container mt-5" style={{ marginLeft: '40px', width: '800px', fontSize: '15pt' }}>
       <h1 style={{ color: '#D6001C', marginBottom: '50px' }}>Điểm danh lớp {newSubject.className}</h1>
-      <Table bordered hover style={{ width: '1000px' }}>
+      <Table bordered hover style={{ width: '850px' }}>
         <thead>
           <tr>
             <th>STT</th>
             <th>Mã HS</th>
-            <th>Họ</th>
-            <th>Tên</th>
+            <th>Họ Tên</th>
             <th>Username</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {userList.map((el, index) =>
-            <tr key={index+1}>
-              <td>{index+1}</td>
+            <tr key={index + 1}>
+              <td>{index + 1}</td>
               <td>{el.userCode}</td>
-              <td>{el.lastName}</td>
-              <td>{el.firstName}</td>
+              <td>{el.firstName + ' ' + el.lastName}</td>
               <td>{el.username}</td>
               <td><input type="checkbox" name={el.userCode} value={el.userCode} defaultChecked={isCheckAttend(el.userCode)} onChange={handleCheckboxChange} style={{ width: '20px' }} />
               </td>
